@@ -1,0 +1,4778 @@
+{
+  "name": "NO_DESACTIVAR-HAGV-WooCommerce_Odoo",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "627cbcbb-35a8-4b38-bcd4-882b1d86435b",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "75f57b9a-b2a4-47ee-b8f7-021a8164b78b",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2128,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "contactName": "={{ $('WooCommerce Trigger').item.json.billing.first_name }} {{ $('WooCommerce Trigger').item.json.billing.last_name }}",
+        "additionalFields": {
+          "address": {
+            "value": {
+              "city": "={{ $('WooCommerce Trigger').item.json.billing.city }} ",
+              "country_id": 68,
+              "street": "={{ $('Campos_WC').item.json.shipping.address_1 }}",
+              "street2": "={{ $('Campos_WC').item.json.shipping.address_2 }}",
+              "zip": "={{ $('Campos_WC').item.json.shipping.postcode }}"
+            }
+          },
+          "email": "={{ $('Campos_WC').item.json.billing.email }}",
+          "comment": "WooCommerce",
+          "phone": "={{ $('Campos_WC').item.json.billing.phone }}"
+        }
+      },
+      "id": "8704f54e-6ec3-47a6-82e3-2249fffb0a19",
+      "name": "Crear_Contacto",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2288,
+        528
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "contactId": "={{ $('Crear_Contacto').item.json.id }}",
+        "options": {}
+      },
+      "id": "ac2fbbe7-92ef-4a4e-9c3c-1c3e4990b925",
+      "name": "Obtener_Contacto_Creado",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2464,
+        528
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "res.partner",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {
+          "fieldsList": []
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "email",
+              "value": "={{ $('Campos_WC').item.json.billing.email }}"
+            }
+          ]
+        }
+      },
+      "id": "1fe251a8-1d4d-4efd-bf9c-c9d574b4d3a6",
+      "name": "Buscar_Contacto",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        448
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "abe494fc-b09d-41cb-b17a-b1057b7320f3",
+              "name": "line_items",
+              "value": "={{$node[\"Campos_WC\"].json.line_items}}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c7289ea8-2f36-464c-b73c-98339734afce",
+      "name": "Productos_WC",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2592,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a01e20d-c8c5-43ec-a85d-34ddc81e3ea8",
+              "name": "name",
+              "value": "={{ $('Wait').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "74d5ff65-7cc8-4887-9719-2ec0b50ee44b",
+              "name": "price",
+              "value": "={{ parseFloat(parseFloat($('Wait').item.json.price).toFixed(2)) }}",
+              "type": "number"
+            },
+            {
+              "id": "13987d74-67cc-4cea-b6de-c2a9e00d2113",
+              "name": "total",
+              "value": "={{ $('Wait').item.json.total }}",
+              "type": "string"
+            },
+            {
+              "id": "e59babd9-299c-463a-afa7-1f5fd96d6b62",
+              "name": "quantity",
+              "value": "={{ $('Wait').item.json.quantity }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "de6dc499-7241-4d6e-b890-b4187d1c780a",
+      "name": "producto_individual_wc",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4432,
+        1072
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "line_items",
+        "options": {}
+      },
+      "id": "491006da-f39f-44fd-8e0d-60d2f9842aec",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2800,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "372b32ae-b7e7-4bb7-859d-7064878c0495",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3024,
+        1088
+      ],
+      "retryOnFail": false,
+      "executeOnce": false,
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "ab369764-3b57-4681-a53b-b5b3cc8db911",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3472,
+        1120
+      ],
+      "webhookId": "056cea2a-f838-4f0a-9d64-c2ceb77ef41e"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "08ea66c7-d32c-4cd5-a236-7b89efd306ea",
+              "leftValue": "={{ $('Buscar_Productos').item.json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "144ac4fd-b0a5-43d0-8b03-2fb791757281",
+      "name": "If2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4192,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_new_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "={{$node[\"Wait\"].json.name}}"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('Wait').item.json.subtotal / $('Wait').item.json.quantity }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "={{$node[\"producto_no_encontrado_wc\"].json.quantity}}"
+            },
+            {
+              "fieldName": "discount",
+              "fieldValue": "={{ (1 - ($('Wait').item.json.total / $('Wait').item.json.subtotal)) * 100 }}"
+            }
+          ]
+        }
+      },
+      "id": "6a097735-a22a-4393-8e68-3de52fac3308",
+      "name": "Sale_Order_Line1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        4800,
+        1424
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "e08a5a5c-05a7-493e-93d6-d761a2fa679f",
+      "name": "Campos_WC",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "partner_id",
+              "fieldValue": "={{$node[\"Buscar_Contacto\"].json.id}}"
+            },
+            {
+              "fieldName": "x_studio_origen",
+              "fieldValue": "WooCommerce"
+            },
+            {
+              "fieldName": "x_studio_n_del_pedido_woocommerce",
+              "fieldValue": "={{$node[\"Campos_WC\"].json.id}}"
+            },
+            {
+              "fieldName": "amount_tax",
+              "fieldValue": "={{ $('Campos_WC').item.json.total_tax }}"
+            },
+            {
+              "fieldName": "tax_totals",
+              "fieldValue": "={{ $('Campos_WC').item.json.total_tax }}"
+            }
+          ]
+        }
+      },
+      "id": "b88b59a4-31ac-41a6-825e-e9047eba4e89",
+      "name": "Sale_Order_existing_contact",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        160
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_new_contact').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "x_studio_estado_de_conexin",
+              "fieldValue": "Productos Faltantes"
+            }
+          ]
+        }
+      },
+      "id": "20d1bdb9-4fa6-4a59-a4c5-2b4c742efa72",
+      "name": "Estado de Conexión",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        5712,
+        1568
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a01e20d-c8c5-43ec-a85d-34ddc81e3ea8",
+              "name": "name",
+              "value": "={{ $('Wait').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "74d5ff65-7cc8-4887-9719-2ec0b50ee44b",
+              "name": "price",
+              "value": "={{ parseFloat(parseFloat($('Wait').item.json.price).toFixed(2)) }}",
+              "type": "number"
+            },
+            {
+              "id": "13987d74-67cc-4cea-b6de-c2a9e00d2113",
+              "name": "total",
+              "value": "={{ $('Wait').item.json.total }}",
+              "type": "string"
+            },
+            {
+              "id": "e59babd9-299c-463a-afa7-1f5fd96d6b62",
+              "name": "quantity",
+              "value": "={{ $('Wait').item.json.quantity }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7826687a-c963-4b95-8943-aae18b887d49",
+      "name": "producto_no_encontrado_wc",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4384,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "452b4d81-e916-4bb1-87a7-80f8eb089a28",
+              "leftValue": "={{ $('get_current_sale_order').item.json.x_studio_estado_de_conexin }}",
+              "rightValue": "Productos Faltantes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "a41b658d-1ba2-478d-adba-6f4321b1359c",
+              "leftValue": "={{ $('get_current_sale_order').item.json.x_studio_estado_de_conexin }}",
+              "rightValue": "Error de asociación",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "0d7ccd2a-3ae9-4280-98c8-0c6ae38798c1",
+      "name": "If3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3744,
+        944
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "update",
+        "customResourceId": "={{ $('get_current_sale_order').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "state",
+              "fieldValue": "sale"
+            }
+          ]
+        }
+      },
+      "id": "dbe01745-3c1e-4978-a095-b2766b212950",
+      "name": "order_status_completed",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        4048,
+        960
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.template",
+        "operation": "getAll",
+        "limit": 1000,
+        "options": {
+          "fieldsList": [
+            "name",
+            "x_studio_sku",
+            "id"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "x_studio_sincronizar_stock_con_woocommerce",
+              "value": "TRUE"
+            }
+          ]
+        }
+      },
+      "id": "73e22ba3-9891-489a-b155-10f3ebaee7b8",
+      "name": "Buscar_Productos1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        -224
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.product",
+        "operation": "get",
+        "customResourceId": "={{ $json.id }}",
+        "options": {
+          "fieldsList": [
+            "quantity_svl",
+            "x_studio_sku"
+          ]
+        }
+      },
+      "id": "5af4b5af-026b-48f2-803d-5f3a2be13044",
+      "name": "Odoo",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        -160
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {
+          "sku": "={{ $('Buscar_Productos1').item.json.x_studio_sku }}"
+        }
+      },
+      "id": "b2f3d97c-717d-424a-8f71-34ace944f1a7",
+      "name": "WooCommerce1",
+      "type": "n8n-nodes-base.wooCommerce",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        -160
+      ],
+      "credentials": {
+        "wooCommerceApi": {
+          "id": "hrRw2VOQSmnnXtpY",
+          "name": "herbolarioagave.com - WooCommerce"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "product",
+        "operation": "update",
+        "productId": "={{ $json.id }}",
+        "updateFields": {
+          "manageStock": true,
+          "stockQuantity": "={{ $('Odoo').item.json.quantity_svl }}"
+        },
+        "dimensionsUi": {},
+        "imagesUi": {},
+        "metadataUi": {}
+      },
+      "id": "17f8b7a5-29f3-4380-ba3a-46cf87501d88",
+      "name": "WooCommerce",
+      "type": "n8n-nodes-base.wooCommerce",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        -160
+      ],
+      "credentials": {
+        "wooCommerceApi": {
+          "id": "hrRw2VOQSmnnXtpY",
+          "name": "herbolarioagave.com - WooCommerce"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "edb8fb29-f3d2-46b8-bc64-c5d47ad8a401",
+      "name": "Loop Over Items1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1584,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "id": "343ac009-fbb6-4be4-8675-13c37d8f5b3d",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        -80
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "id": "1a97cc5a-3e8f-4751-9f26-b66f70e4a987",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        592,
+        944
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "update",
+        "customResourceId": "={{$node[\"get_cancelled_sales_order\"].json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "state",
+              "fieldValue": "cancel"
+            }
+          ]
+        }
+      },
+      "id": "1ff32d26-61e7-4900-841e-0ab70f434bea",
+      "name": "Odoo1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        1280
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "getAll",
+        "options": {
+          "fieldsList": [
+            "client_order_ref",
+            "create_date",
+            "date_order",
+            "effective_date"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "x_studio_n_del_pedido_woocommerce",
+              "value": "={{$node[\"Campos_WC\"].json.id}}"
+            }
+          ]
+        }
+      },
+      "id": "652bba74-5d0c-4e76-8dd8-2df09eacba44",
+      "name": "get_cancelled_sales_order",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        928
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {}
+          ]
+        }
+      },
+      "id": "ba0abb1c-6b0f-4f19-a053-abcf5f99d748",
+      "name": "Execution Data",
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1,
+      "position": [
+        3280,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "get",
+        "customResourceId": "={{ $('Sale_Order_new_contact').item.json.id }}",
+        "options": {}
+      },
+      "id": "ab10fe7b-ac59-487d-a49d-0e8c51030720",
+      "name": "get_current_sale_order",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        3328,
+        880
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.product",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {},
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "x_studio_sku",
+              "value": "={{ $('Wait').item.json.sku }}"
+            }
+          ]
+        }
+      },
+      "id": "760b4bf2-ae91-413b-8971-83b6dc9a196d",
+      "name": "Buscar_Productos",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        4000,
+        1232
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_new_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "={{$node[\"Buscar_Productos\"].json.id}}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "={{$node[\"producto_individual_wc\"].json.quantity}}"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('Wait').item.json.subtotal / $('Wait').item.json.quantity }}"
+            },
+            {
+              "fieldName": "discount",
+              "fieldValue": "={{ (1 - ($('Wait').item.json.total / $('Wait').item.json.subtotal)) * 100 }}"
+            }
+          ]
+        }
+      },
+      "id": "8a61ff4d-33e2-4fac-b0c0-9c35bbddb2b4",
+      "name": "Sale_Order_Line",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        5024,
+        1040
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "partner_id",
+              "fieldValue": "={{$node[\"Obtener_Contacto_Creado\"].json.id}}"
+            },
+            {
+              "fieldName": "x_studio_n_del_pedido_woocommerce",
+              "fieldValue": "={{$node[\"Campos_WC\"].json.id}}"
+            },
+            {
+              "fieldName": "x_studio_origen",
+              "fieldValue": "WooCommerce"
+            },
+            {
+              "fieldName": "amount_tax",
+              "fieldValue": "={{ $('Campos_WC').item.json.total_tax }}"
+            }
+          ]
+        }
+      },
+      "id": "6da7ef9c-53c2-48a9-8618-6250015f1326",
+      "name": "Sale_Order_new_contact",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2672,
+        528
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {}
+          ]
+        }
+      },
+      "id": "126a1f98-d239-4f71-a4f2-c41b21df8d25",
+      "name": "Execution Data1",
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a01e20d-c8c5-43ec-a85d-34ddc81e3ea8",
+              "name": "name",
+              "value": "={{ $('Wait1').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "74d5ff65-7cc8-4887-9719-2ec0b50ee44b",
+              "name": "price",
+              "value": "={{ parseFloat(parseFloat($('Wait1').item.json.price).toFixed(2)) }}",
+              "type": "number"
+            },
+            {
+              "id": "13987d74-67cc-4cea-b6de-c2a9e00d2113",
+              "name": "total",
+              "value": "={{ $('Wait1').item.json.total }}",
+              "type": "string"
+            },
+            {
+              "id": "e59babd9-299c-463a-afa7-1f5fd96d6b62",
+              "name": "quantity",
+              "value": "={{ $('Wait1').item.json.quantity }}",
+              "type": "number"
+            },
+            {
+              "id": "c616ce7d-ee5b-4e88-832f-4dd7bde0b2ab",
+              "name": "total_tax",
+              "value": "={{ $('Wait1').item.json.total_tax }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ff28b123-77e8-49e9-bc27-5b634e2f53b4",
+      "name": "producto_individual_wc1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5392,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "line_items",
+        "options": {}
+      },
+      "id": "6f0e7345-4cbc-4528-819b-9c0fb2a5e692",
+      "name": "Split Out1",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        4032,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "73ece3aa-6fad-40c3-bed2-62f1b46003da",
+      "name": "Loop Over Items2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        4208,
+        208
+      ],
+      "retryOnFail": false,
+      "executeOnce": false,
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "9f61e360-a40c-4a14-b2c9-4aecaa22e2fa",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4512,
+        208
+      ],
+      "webhookId": "056cea2a-f838-4f0a-9d64-c2ceb77ef41e"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "08ea66c7-d32c-4cd5-a236-7b89efd306ea",
+              "leftValue": "={{ $('Buscar_Productos2').item.json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "439a1860-0df4-4479-8633-629f62bf41e8",
+      "name": "If4",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5248,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "={{$node[\"Wait1\"].json.name}}"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('Wait1').item.json.subtotal / $('Wait1').item.json.quantity }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "={{$node[\"producto_no_encontrado_wc1\"].json.quantity}}"
+            },
+            {
+              "fieldName": "discount",
+              "fieldValue": "={{ (1 - ($('Wait1').item.json.total / $('Wait1').item.json.subtotal)) * 100 }}"
+            }
+          ]
+        }
+      },
+      "id": "32ade91c-810c-4a28-9267-6c3e2bfcce0b",
+      "name": "Sale_Order_Line2",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        5840,
+        608
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_existing_contact').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "x_studio_estado_de_conexin",
+              "fieldValue": "Productos Faltantes"
+            }
+          ]
+        }
+      },
+      "id": "30474fff-e82d-49ae-8a90-75c5227b24e5",
+      "name": "Estado de Conexión1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        6512,
+        720
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a01e20d-c8c5-43ec-a85d-34ddc81e3ea8",
+              "name": "name",
+              "value": "={{ $('Wait1').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "74d5ff65-7cc8-4887-9719-2ec0b50ee44b",
+              "name": "price",
+              "value": "={{ parseFloat(parseFloat($('Wait1').item.json.price).toFixed(2)) }}",
+              "type": "number"
+            },
+            {
+              "id": "13987d74-67cc-4cea-b6de-c2a9e00d2113",
+              "name": "total",
+              "value": "={{ $('Wait1').item.json.total }}",
+              "type": "string"
+            },
+            {
+              "id": "e59babd9-299c-463a-afa7-1f5fd96d6b62",
+              "name": "quantity",
+              "value": "={{ $('Wait1').item.json.quantity }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "044e94cf-a9cb-4fb6-af70-960771e440aa",
+      "name": "producto_no_encontrado_wc1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5408,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "452b4d81-e916-4bb1-87a7-80f8eb089a28",
+              "leftValue": "={{ $('get_current_sale_order1').item.json.x_studio_estado_de_conexin }}",
+              "rightValue": "Productos Faltantes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "a41b658d-1ba2-478d-adba-6f4321b1359c",
+              "leftValue": "={{ $('get_current_sale_order1').item.json.x_studio_estado_de_conexin }}",
+              "rightValue": "Error de asociación",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "c3fb8da3-c191-4df4-9828-2a2f73cdac62",
+      "name": "If5",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4640,
+        -16
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "update",
+        "customResourceId": "={{ $('get_current_sale_order1').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "state",
+              "fieldValue": "sale"
+            }
+          ]
+        }
+      },
+      "id": "3b52395d-3844-4cdf-a564-6d25221f23fa",
+      "name": "order_status_completed1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        4912,
+        48
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {}
+          ]
+        }
+      },
+      "id": "6eefdbbf-ef01-42b2-a993-42c83fd5a173",
+      "name": "Execution Data2",
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1,
+      "position": [
+        4384,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "get",
+        "customResourceId": "={{ \n  ($('Sale_Order_existing_contact').item && $('Sale_Order_existing_contact').item.json) \n  ? $('Sale_Order_existing_contact').item.json.id \n  : (($('Sale_Order_new_contact').item && $('Sale_Order_new_contact').item.json) \n     ? $('Sale_Order_new_contact').item.json.id \n     : null) \n}}",
+        "options": {}
+      },
+      "id": "d320d8e0-4672-4176-b815-182372bf66af",
+      "name": "get_current_sale_order1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        4400,
+        -16
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.product",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {},
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "x_studio_sku",
+              "operator": "like",
+              "value": "={{ $('Wait1').item.json.sku }}"
+            }
+          ]
+        }
+      },
+      "id": "088debf2-d6ee-4b00-be17-04a6549c5716",
+      "name": "Buscar_Productos2",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        5040,
+        384
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "={{$node[\"producto_individual_wc1\"].json.quantity}}"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('Wait1').item.json.subtotal / $('Wait1').item.json.quantity }}"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "={{ $('Buscar_Productos2').item.json.id }}"
+            },
+            {
+              "fieldName": "discount",
+              "fieldValue": "={{ (1 - ($('Wait1').item.json.total / $('Wait1').item.json.subtotal)) * 100 }}"
+            }
+          ]
+        }
+      },
+      "id": "a0a20bf5-bd41-4588-9082-0d7bfe5afa48",
+      "name": "Sale_Order_Line3",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        5760,
+        48
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "abe494fc-b09d-41cb-b17a-b1057b7320f3",
+              "name": "line_items",
+              "value": "={{$node[\"Campos_WC\"].json.line_items}}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "af3a42f3-17dd-4e2c-9ff6-073a8590485d",
+      "name": "Productos_WC1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3808,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of items) {\n  const priceString = item.json.price;\n  const totalTaxString = item.json.total;\n\n  const price = parseFloat(priceString);\n  const totalTax = parseFloat(totalTaxString);\n\n  if (!isNaN(price) && !isNaN(totalTax)) {\n    const sumPriceAndTax = price + totalTax;\n    item.json.sum_price_with_tax = parseFloat(sumPriceAndTax.toFixed(2));\n  } else {\n    item.json.sum_price_with_tax = null;\n  }\n}\n\nreturn items;"
+      },
+      "id": "d0ad176a-3519-446b-a68e-f064de48cee7",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5600,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of items) {\n  const priceString = item.json.price;\n  const totalTaxString = item.json.total_tax;\n\n  const price = parseFloat(priceString);\n  const totalTax = parseFloat(totalTaxString);\n\n  if (!isNaN(price) && !isNaN(totalTax)) {\n    const sumPriceAndTax = price + totalTax;\n    item.json.sum_price_with_tax = parseFloat(sumPriceAndTax.toFixed(2));\n  } else {\n    item.json.sum_price_with_tax = null;\n  }\n}\n\nreturn items;"
+      },
+      "id": "a3503ae7-6ae7-41de-b7d1-1dee46c11849",
+      "name": "Code2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4688,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of items) {\n  const priceString = item.json.price;\n  const totalTaxString = item.json.total_tax;\n\n  const price = parseFloat(priceString);\n  const totalTax = parseFloat(totalTaxString);\n\n  if (!isNaN(price) && !isNaN(totalTax)) {\n    const sumPriceAndTax = price + totalTax;\n    item.json.sum_price_with_tax = parseFloat(sumPriceAndTax.toFixed(2));\n  } else {\n    item.json.sum_price_with_tax = null;\n  }\n}\n\nreturn items;"
+      },
+      "id": "b72a43ef-b49e-41a6-9d05-15d523e7c2b5",
+      "name": "Code3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4560,
+        1392
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "71eb17fa-c2d8-4c57-8936-3de90a877698",
+      "name": "Odoo2",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        -144
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "53419"
+            },
+            {
+              "fieldName": "price_total",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.discount_total }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "Descuentos/Cupones de WooCommerce"
+            },
+            {
+              "fieldName": "product_qty",
+              "fieldValue": "1"
+            }
+          ]
+        }
+      },
+      "id": "46ea1ba3-5b0d-456a-9d6d-71c1151c4569",
+      "name": "descuentos-odoo",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        -336
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "53420"
+            },
+            {
+              "fieldName": "price_total",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.total_tax }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "Impuestos Dinámicos WooCommerce"
+            },
+            {
+              "fieldName": "product_qty",
+              "fieldValue": "1"
+            }
+          ]
+        }
+      },
+      "id": "c0a3af89-94eb-4df3-919a-874f5d4ae6ce",
+      "name": "descuentos-odoo1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        3088,
+        -336
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"my_field_1\": \"value\"\n\n}\n",
+        "options": {}
+      },
+      "id": "d065511c-ec01-46f3-b9fa-a0ed68f2326a",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5120,
+        48
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "price_total",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.shipping_total }}"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "53418"
+            },
+            {
+              "fieldName": "product_qty",
+              "fieldValue": "1"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "Coste de Envío WooCommerce"
+            }
+          ]
+        }
+      },
+      "id": "49f20b20-d902-4576-872b-2182a6123989",
+      "name": "envio-odoo",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2704,
+        -336
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const order = $node[\"WooCommerce Trigger\"].json;\n\nconst orderTotal = parseFloat(order.total);\n\nconst lineItemsTotal = order.line_items.reduce((sum, item) => {\n  return sum + parseFloat(item.total);\n}, 0);\n\nconst otrosGastos = orderTotal - lineItemsTotal;\n\nreturn {\n  json: {\n    resultado_final: parseFloat(otrosGastos.toFixed(2))\n  }\n};"
+      },
+      "id": "60bd2216-2343-4e52-bdae-4b52ce90e8a0",
+      "name": "Code4",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "=Gastos WooCommerce"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ - $('WooCommerce Trigger').item.json.discount_total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "=1"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "53428"
+            }
+          ]
+        }
+      },
+      "id": "09ae9a0e-825c-43be-9de4-a5ec032b8d36",
+      "name": "Sale_Order_Line4",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2672,
+        352
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const order = $node[\"WooCommerce Trigger\"].json;\n\nconst orderTotal = parseFloat(order.total);\n\nconst lineItemsTotal = order.line_items.reduce((sum, item) => {\n  return sum + parseFloat(item.total);\n}, 0);\n\nconst otrosGastos = orderTotal - lineItemsTotal;\n\nreturn {\n  json: {\n    resultado_final: parseFloat(otrosGastos.toFixed(2))\n  }\n};"
+      },
+      "id": "70637a5e-1a72-4512-abf1-54619171c6c1",
+      "name": "Code5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4288,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {
+          "fieldsList": []
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "x_studio_n_del_pedido_woocommerce",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "ecb14edd-7212-4163-bf6c-8de91e47a560",
+      "name": "Odoo3",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        560
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "409ba0e5-bc50-4ca8-bd6e-a1baaae0cb52",
+              "leftValue": "={{ $json.x_studio_n_del_pedido_woocommerce }}",
+              "rightValue": "={{ ($('WooCommerce Trigger').item.json.id).toString()  }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0c70b787-02d5-4508-a4ce-5c292c2fb9bb",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "event": "order.updated"
+      },
+      "id": "4fcadab5-85c3-40f0-95b7-997535787798",
+      "name": "WooCommerce Trigger",
+      "type": "n8n-nodes-base.wooCommerceTrigger",
+      "typeVersion": 1,
+      "position": [
+        544,
+        672
+      ],
+      "webhookId": "43037761-2a95-45ff-bfe1-17743785635d",
+      "notesInFlow": false,
+      "credentials": {
+        "wooCommerceApi": {
+          "id": "hrRw2VOQSmnnXtpY",
+          "name": "herbolarioagave.com - WooCommerce"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of items) {\n  const priceString = item.json.price;\n  const totalTaxString = item.json.total_tax;\n\n  const price = parseFloat(priceString);\n  const totalTax = parseFloat(totalTaxString);\n\n  if (!isNaN(price) && !isNaN(totalTax)) {\n    const sumPriceAndTax = price + totalTax;\n    item.json.sum_price_with_tax = parseFloat(sumPriceAndTax.toFixed(2));\n  } else {\n    item.json.sum_price_with_tax = null;\n  }\n}\n\nreturn items;"
+      },
+      "id": "6706aeef-ae7f-4d10-a7bb-4ff6dce1de3d",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5600,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Gastos WooCommerce",
+        "height": 198.7879307329335,
+        "width": 459.23613022962365
+      },
+      "id": "6bba0c31-4101-4d47-93eb-0c42d8251a0d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Gastos WooCommerce",
+        "height": 185.27843380937452,
+        "width": 445.7266333060646
+      },
+      "id": "73944cf6-0698-448c-9476-41e2cbfa1826",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4224,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_new_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "=Gastos WooCommerce"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $json.resultado_final }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "=1"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "53428"
+            }
+          ]
+        }
+      },
+      "id": "0e82b28a-8fce-4536-9482-304673a04c52",
+      "name": "Sale_Order_Line5",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        4512,
+        704
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ebd9b8f5-e4b1-49b4-953d-4cddfbf027ff",
+              "leftValue": "={{ $json.sku }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c8e3b42c-9df3-4135-bc8b-a66ddb36e04d",
+      "name": "If6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3680,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ebd9b8f5-e4b1-49b4-953d-4cddfbf027ff",
+              "leftValue": "={{ $json.sku }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ce79bc59-bc7c-4961-be28-7598c6c4a8b7",
+      "name": "If7",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4704,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_Line3').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [75] }}"
+            }
+          ]
+        }
+      },
+      "id": "efe8768e-ce33-4ddd-af56-16934b22fbab",
+      "name": "Odoo4",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        6592,
+        -256
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$node[\"Campos_WC\"].json.status}}",
+                    "rightValue": "processing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "0f46e48e-6fff-466f-b680-3155ebf056de",
+                    "leftValue": "={{$node[\"Campos_WC\"].json.status}}",
+                    "rightValue": "cancelled",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "09d2f32c-67e5-4e66-87e1-185e3f7c6773",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1152,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_Line3').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [3] }}"
+            }
+          ]
+        }
+      },
+      "id": "f09a6a55-1bc6-456b-a4d2-5f4138e74ca1",
+      "name": "Odoo5",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        6592,
+        -496
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_Line').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [75] }}"
+            }
+          ]
+        }
+      },
+      "id": "16ca95f4-43f8-451c-9509-2f03dadefced",
+      "name": "Odoo6",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        6848,
+        1648
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_Line').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [3] }}"
+            }
+          ]
+        }
+      },
+      "id": "0ad38fea-15b8-4b5d-aa4f-8967a2a3044a",
+      "name": "Odoo7",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        6368,
+        1648
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_Line2').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [75] }}"
+            }
+          ]
+        }
+      },
+      "id": "66823069-36f1-494f-b6eb-09af431b4f19",
+      "name": "Odoo8",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        6240,
+        432
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_Line2').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [3] }}"
+            }
+          ]
+        }
+      },
+      "id": "5b0ec11f-9767-49e4-9eb0-de2fecdd9f35",
+      "name": "Odoo9",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        6272,
+        688
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_Line1').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [75] }}"
+            }
+          ]
+        }
+      },
+      "id": "ab02966c-72ef-48ff-a5a4-5bc2e4fc88c6",
+      "name": "Odoo10",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        5344,
+        1280
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "operation": "update",
+        "customResourceId": "={{ $('Sale_Order_Line1').item.json.id }}",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [3] }}"
+            }
+          ]
+        }
+      },
+      "id": "b406db1f-07a7-472e-a596-80f563106a1f",
+      "name": "Odoo11",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        5360,
+        1504
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "=Gastos WooCommerce"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ - $('WooCommerce Trigger').item.json.discount_total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "=1"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "53428"
+            }
+          ]
+        }
+      },
+      "id": "44265e5a-c14b-4dbf-beb5-b0146b6fc3ae",
+      "name": "Sale_Order_Line6",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        3152,
+        -128
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9c3c9e88-6d88-4553-8fda-97272bd893c3",
+              "leftValue": "={{ $('WooCommerce Trigger').item.json.shipping_total }}",
+              "rightValue": "0.00",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8a0b2169-0fcb-4d5c-886e-18875d915557",
+      "name": "If8",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "=Gastos de Envío WooCommerce"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.shipping_total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "=1"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "53428"
+            }
+          ]
+        }
+      },
+      "id": "72ed4ac2-5ffa-4f1d-8518-fab2f160dc48",
+      "name": "Sale_Order_Line7",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        48
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9c3c9e88-6d88-4553-8fda-97272bd893c3",
+              "leftValue": "={{ $('WooCommerce Trigger').item.json.shipping_total }}",
+              "rightValue": "0.00",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4ba95970-794c-400e-9479-a786a06949e9",
+      "name": "If10",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2832,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "577a0e1f-9cdf-4953-821b-885238982ea7",
+              "leftValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].name }}",
+              "rightValue": "Recargo por pago contrareembolso: Pedidos menores de 78,6€ -> 5,50€ / Mayores de 78,6€ -> 7% del pedido",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f4f90507-d3a8-41bc-bd71-350b3a4c2927",
+      "name": "If9",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "577a0e1f-9cdf-4953-821b-885238982ea7",
+              "leftValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].name }}",
+              "rightValue": "Recargo por pago contrareembolso: Pedidos menores de 78,6€ -> 5,50€ / Mayores de 78,6€ -> 7% del pedido",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "06427831-9c4a-4b7b-9430-1e6a61f56ad1",
+      "name": "If11",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3168,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_new_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "1"
+            },
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [174] }}"
+            },
+            {
+              "fieldName": "product_template_id",
+              "fieldValue": "={{ 59889 }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "Recargo por pago contrareembolso"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "59890"
+            }
+          ]
+        }
+      },
+      "id": "56a9f5d5-3d04-4c8c-a914-354649b3b3aa",
+      "name": "Sale_Order_Line10",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        3328,
+        368
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "577a0e1f-9cdf-4953-821b-885238982ea7",
+              "leftValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].name }}",
+              "rightValue": "Recargo del 1,5% por pago con Bizum",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fcdf1d48-eaa3-42ba-87c2-554871b98977",
+      "name": "If12",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3168,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "=Recargo del 1,5% por pago con Bizum"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "=1"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "59891"
+            }
+          ]
+        }
+      },
+      "id": "f8439e09-73f6-4dd6-a3ac-66bb1050e156",
+      "name": "Sale_Order_Line11",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        3328,
+        48
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_new_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "=Recargo del 1,5% por pago con Bizum"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "=1"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "59891"
+            }
+          ]
+        }
+      },
+      "id": "557a5bb4-6736-4a55-b0fd-95ffd797f022",
+      "name": "Sale_Order_Line12",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        3792,
+        592
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_new_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "1"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "Recargo del 4% + IVA por pago con paypal"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "59892"
+            }
+          ]
+        }
+      },
+      "id": "deba3adb-222a-405b-a659-7cb62968a187",
+      "name": "Sale_Order_Line13",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        928
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "577a0e1f-9cdf-4953-821b-885238982ea7",
+              "leftValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].name }}",
+              "rightValue": "Recargo del 4% + IVA por pago con paypal",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ee6b414d-158d-4c20-9d5a-166ac6d00bd1",
+      "name": "If14",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2128,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "1"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "Recargo del 4% + IVA por pago con paypal"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "59892"
+            }
+          ]
+        }
+      },
+      "id": "c07b8d36-69c6-44e2-80d7-f552c27c871d",
+      "name": "Sale_Order_Line14",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        3648,
+        48
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "577a0e1f-9cdf-4953-821b-885238982ea7",
+              "leftValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].name }}",
+              "rightValue": "Recargo del 4% + IVA por pago con paypal",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9a5487e3-159c-4e3e-bc97-88237e0e2d86",
+      "name": "If15",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3488,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "577a0e1f-9cdf-4953-821b-885238982ea7",
+              "leftValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].name }}",
+              "rightValue": "Recargo del 1,5% por pago con Bizum",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1039016a-a9cc-4c49-bd47-014a389a0c74",
+      "name": "If16",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3552,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_existing_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "=Recargo por pago contrareembolso"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.fee_lines[0].total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "=1"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "59890"
+            },
+            {
+              "fieldName": "tax_ids",
+              "fieldValue": "={{ [174] }}"
+            }
+          ]
+        }
+      },
+      "id": "23b91dc4-285e-41e5-b159-733b6e51e5c1",
+      "name": "rec-contrareembolso",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        3008,
+        64
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('Sale_Order_new_contact').item.json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "=Gastos de Envío WooCommerce"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $('WooCommerce Trigger').item.json.shipping_total }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "=1"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "53428"
+            }
+          ]
+        }
+      },
+      "id": "02b0af88-0aa3-477d-9a07-48c41c590587",
+      "name": "env-wc",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        3008,
+        384
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "m0BJdfGyk8LmgIuL",
+          "name": "herbolario-agave"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Wait').item.json.tax_class }}",
+                    "rightValue": "iva-10",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "e3e33fa8-17b7-4186-9efe-dca15dd336ef",
+                    "leftValue": "={{ $('Wait').item.json.tax_class }}",
+                    "rightValue": "iva-21",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "558409de-30e9-45ba-baaf-b71bc17de14f",
+                    "leftValue": "={{ $('Wait').item.json.tax_class }}",
+                    "rightValue": "={{ \"\" }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "8cebcc19-c52a-41a0-89ea-82aa64a193e8",
+      "name": "Switch4",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        5088,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Wait').item.json.tax_class }}",
+                    "rightValue": "iva-10",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "e3e33fa8-17b7-4186-9efe-dca15dd336ef",
+                    "leftValue": "={{ $('Wait').item.json.tax_class }}",
+                    "rightValue": "iva-21",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "5ed74c23-bb9f-4117-8601-dc61e82d34c7",
+                    "leftValue": "={{ $('Wait').item.json.tax_class }}",
+                    "rightValue": "={{ \"\" }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "2720c7f6-5615-4793-9581-ba379660bae1",
+      "name": "Switch2",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        6080,
+        1632
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Wait1').item.json.tax_class }}",
+                    "rightValue": "iva-10",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "e3e33fa8-17b7-4186-9efe-dca15dd336ef",
+                    "leftValue": "={{ $('Wait1').item.json.tax_class }}",
+                    "rightValue": "iva-21",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "107d6d20-fd91-4063-9a07-05dc50c2e61d",
+                    "leftValue": "{{ $('Wait1').item.json.tax_class }}",
+                    "rightValue": "={{ \"\" }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "fbca4510-7452-4d36-92d3-1de8332a58e1",
+      "name": "Switch1",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        6272,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Wait1').item.json.tax_class }}",
+                    "rightValue": "iva-10",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "e3e33fa8-17b7-4186-9efe-dca15dd336ef",
+                    "leftValue": "={{ $('Wait1').item.json.tax_class }}",
+                    "rightValue": "iva-21",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "af33b556-a687-47f9-8d66-877df4326d11",
+                    "leftValue": "={{ $('Wait1').item.json.tax_class }}",
+                    "rightValue": "={{ \"\" }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "dbd2c20a-2589-4a82-a7a1-1cddd14f63e9",
+      "name": "Switch3",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        6048,
+        688
+      ]
+    }
+  ],
+  "pinData": {
+    "WooCommerce Trigger": [
+      {
+        "json": {
+          "id": 869321332332322,
+          "parent_id": 0,
+          "status": "processing",
+          "currency": "EUR",
+          "version": "9.9.5",
+          "prices_include_tax": true,
+          "date_created": "2025-07-11T21:10:06",
+          "date_modified": "2025-07-11T21:10:09",
+          "discount_total": "0.00",
+          "discount_tax": "0.00",
+          "shipping_total": "0.00",
+          "shipping_tax": "0.00",
+          "cart_tax": "4.18",
+          "total": "47.62",
+          "total_tax": "4.18",
+          "customer_id": 14493,
+          "order_key": "wc_order_lh7FFfSkBgfRA",
+          "billing": {
+            "first_name": "Mario",
+            "last_name": "García garoz",
+            "company": "",
+            "address_1": "Camino cortés 17 ,urb isla de guadalmina 15",
+            "address_2": "Urb idal de guadalmina , villa 15",
+            "city": "Marbella",
+            "state": "MA",
+            "postcode": "29670",
+            "country": "ES",
+            "email": "forexig13253232@gmail.com",
+            "phone": "+34655759518"
+          },
+          "shipping": {
+            "first_name": "Mario",
+            "last_name": "García garoz",
+            "company": "",
+            "address_1": "Camino cortés 17 ,urb isla de guadalmina 15",
+            "address_2": "",
+            "city": "Marbella",
+            "state": "MA",
+            "postcode": "29670",
+            "country": "ES",
+            "phone": ""
+          },
+          "payment_method": "ppcp-gateway",
+          "payment_method_title": "PayPal",
+          "transaction_id": "5ML53519YD328771Y",
+          "customer_ip_address": "77.224.116.42",
+          "customer_user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) GSA/371.0.763199552 Mobile/15E148 Safari/604.1",
+          "created_via": "checkout",
+          "customer_note": "",
+          "date_completed": null,
+          "date_paid": "2025-07-11T21:10:09",
+          "cart_hash": "491d5558106bec7970278a953f962a6e",
+          "number": "86913",
+          "meta_data": [
+            {
+              "id": 2535955,
+              "key": "_relevanssi_noindex_reason",
+              "value": "Rank MathWooCommerce"
+            },
+            {
+              "id": 2535997,
+              "key": "is_vat_exempt",
+              "value": "no"
+            },
+            {
+              "id": 2535998,
+              "key": "_mm_needs_invoice",
+              "value": "no"
+            },
+            {
+              "id": 2535999,
+              "key": "wcpdf_order_locale",
+              "value": "es_ES"
+            },
+            {
+              "id": 2536000,
+              "key": "_wc_order_attribution_source_type",
+              "value": "typein"
+            },
+            {
+              "id": 2536001,
+              "key": "_wc_order_attribution_utm_source",
+              "value": "(direct)"
+            },
+            {
+              "id": 2536002,
+              "key": "_wc_order_attribution_session_entry",
+              "value": "https://www.herbolarioagave.com/producto/nad-resveratrol-banban/"
+            },
+            {
+              "id": 2536003,
+              "key": "_wc_order_attribution_session_start_time",
+              "value": "2025-07-11 19:06:15"
+            },
+            {
+              "id": 2536004,
+              "key": "_wc_order_attribution_session_pages",
+              "value": "4"
+            },
+            {
+              "id": 2536005,
+              "key": "_wc_order_attribution_session_count",
+              "value": "1"
+            },
+            {
+              "id": 2536006,
+              "key": "_wc_order_attribution_user_agent",
+              "value": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) GSA/371.0.763199552 Mobile/15E148 Safari/604.1"
+            },
+            {
+              "id": 2536007,
+              "key": "_wc_order_attribution_device_type",
+              "value": "Mobile"
+            },
+            {
+              "id": 2536008,
+              "key": "ywpar_points_from_cart",
+              "value": "138"
+            },
+            {
+              "id": 2536009,
+              "key": "_ppcp_paypal_order_id",
+              "value": "03C26936MH6904057"
+            },
+            {
+              "id": 2536010,
+              "key": "_ppcp_paypal_intent",
+              "value": "CAPTURE"
+            },
+            {
+              "id": 2536011,
+              "key": "_ppcp_paypal_payment_mode",
+              "value": "live"
+            },
+            {
+              "id": 2536012,
+              "key": "_ppcp_paypal_payment_source",
+              "value": "paypal"
+            },
+            {
+              "id": 2536013,
+              "key": "_ppcp_paypal_payer_email",
+              "value": "forexig15@gmail.com"
+            },
+            {
+              "id": 2536017,
+              "key": "_wcpdf_invoice_settings",
+              "value": {
+                "title": {
+                  "default": ""
+                },
+                "disable_for_require": "one",
+                "number_title": {
+                  "default": ""
+                },
+                "date_title": {
+                  "default": ""
+                },
+                "display_customer_notes": "1",
+                "display_shop_vat": "1",
+                "shop_vat_label": {
+                  "default": ""
+                },
+                "shop_coc_label": {
+                  "default": ""
+                },
+                "display_shipping_address": "",
+                "display_number": "invoice_number",
+                "display_date": "document_date",
+                "due_date_title": {
+                  "default": ""
+                },
+                "filename": {
+                  "default": ""
+                },
+                "header_logo": {
+                  "default": "83375"
+                },
+                "header_logo_height": "",
+                "vat_number": "E16970485",
+                "coc_number": "",
+                "shop_name": {
+                  "default": "Herbolario Ágave"
+                },
+                "shop_phone_number": {
+                  "default": "+34 918 27 98 01"
+                },
+                "shop_address_line_1": {
+                  "default": "Av. de la Osa Mayor, 36, Moncloa"
+                },
+                "shop_address_line_2": {
+                  "default": ""
+                },
+                "shop_address_country": {
+                  "default": ""
+                },
+                "shop_address_state": {
+                  "default": "Madrid"
+                },
+                "shop_address_city": {
+                  "default": "Aravaca"
+                },
+                "shop_address_postcode": {
+                  "default": "28023"
+                },
+                "shop_address_additional": {
+                  "default": ""
+                },
+                "footer": {
+                  "default": ""
+                },
+                "extra_1": {
+                  "default": ""
+                },
+                "extra_2": {
+                  "default": ""
+                },
+                "extra_3": {
+                  "default": ""
+                }
+              }
+            },
+            {
+              "id": 2536018,
+              "key": "_wcpdf_invoice_display_date",
+              "value": "document_date"
+            },
+            {
+              "id": 2536019,
+              "key": "_ppcp_paypal_fees",
+              "value": {
+                "gross_amount": {
+                  "currency_code": "EUR",
+                  "value": "47.62"
+                },
+                "paypal_fee": {
+                  "currency_code": "EUR",
+                  "value": "1.73"
+                },
+                "net_amount": {
+                  "currency_code": "EUR",
+                  "value": "45.89"
+                }
+              }
+            },
+            {
+              "id": 2536020,
+              "key": "PayPal Transaction Fee",
+              "value": "1.73"
+            },
+            {
+              "id": 2536021,
+              "key": "_ga_tracked",
+              "value": "1"
+            }
+          ],
+          "line_items": [
+            {
+              "id": 122045,
+              "name": "Nad Resveratrol BANBAN 60 cápsulas",
+              "product_id": 81983,
+              "variation_id": 0,
+              "quantity": 1,
+              "tax_class": "iva-10",
+              "subtotal": "41.77",
+              "subtotal_tax": "4.18",
+              "total": "41.77",
+              "total_tax": "4.18",
+              "taxes": [
+                {
+                  "id": 3,
+                  "total": "4.177273",
+                  "subtotal": "4.177273"
+                }
+              ],
+              "meta_data": [
+                {
+                  "id": 911827,
+                  "key": "_wdp_cart_item_key",
+                  "value": "584d9fbb6882f19bb6488338baf7c0f1",
+                  "display_key": "_wdp_cart_item_key",
+                  "display_value": "584d9fbb6882f19bb6488338baf7c0f1"
+                },
+                {
+                  "id": 911828,
+                  "key": "_ywpar_total_points",
+                  "value": "138",
+                  "display_key": "_ywpar_total_points",
+                  "display_value": "138"
+                },
+                {
+                  "id": 911829,
+                  "key": "_woo_custom_stock_status_email_txt",
+                  "value": "<p class=\"stock in-stock in_stock_color woo-custom-stock-status woocss_shortcode\">Hay existencias</p>",
+                  "display_key": "Estado del inventario",
+                  "display_value": "Hay existencias"
+                },
+                {
+                  "id": 911852,
+                  "key": "_wcpdf_regular_price",
+                  "value": {
+                    "incl": 45.95,
+                    "excl": 41.772727
+                  },
+                  "display_key": "_wcpdf_regular_price",
+                  "display_value": {
+                    "incl": 45.95,
+                    "excl": 41.772727
+                  }
+                }
+              ],
+              "sku": "8437024122906",
+              "price": 41.772727,
+              "image": {
+                "id": "82008",
+                "src": "https://www.herbolarioagave.com/wp-content/uploads/2025/04/NAD-Resveratrol-BANBAN-60-capsulas.jpg"
+              },
+              "parent_name": null
+            }
+          ],
+          "tax_lines": [
+            {
+              "id": 122048,
+              "rate_code": "ES-IVA REDUCIDO-1",
+              "rate_id": 3,
+              "label": "IVA Reducido",
+              "compound": false,
+              "tax_total": "4.18",
+              "shipping_tax_total": "0.00",
+              "rate_percent": 10,
+              "meta_data": [
+                {
+                  "id": 911848,
+                  "key": "_wcpdf_rate_percentage",
+                  "value": "10.0000",
+                  "display_key": "_wcpdf_rate_percentage",
+                  "display_value": "10.0000"
+                },
+                {
+                  "id": 911849,
+                  "key": "_wcpdf_ubl_tax_category",
+                  "value": "",
+                  "display_key": "_wcpdf_ubl_tax_category",
+                  "display_value": ""
+                },
+                {
+                  "id": 911850,
+                  "key": "_wcpdf_ubl_tax_scheme",
+                  "value": "",
+                  "display_key": "_wcpdf_ubl_tax_scheme",
+                  "display_value": ""
+                },
+                {
+                  "id": 911851,
+                  "key": "_wcpdf_ubl_tax_reason",
+                  "value": "",
+                  "display_key": "_wcpdf_ubl_tax_reason",
+                  "display_value": ""
+                }
+              ]
+            }
+          ],
+          "shipping_lines": [
+            {
+              "id": 122047,
+              "method_title": "Envío gratuito (pedido mínimo superado Peninsular)",
+              "method_id": "tree_table_rate",
+              "instance_id": "1",
+              "total": "0.00",
+              "total_tax": "0.00",
+              "taxes": [],
+              "tax_status": "taxable",
+              "meta_data": []
+            }
+          ],
+          "fee_lines": [
+            {
+              "id": 122046,
+              "name": "Recargo del 4% + IVA por pago con paypal",
+              "tax_class": "0",
+              "tax_status": "taxable",
+              "amount": "1.670909",
+              "total": "1.67",
+              "total_tax": "0.00",
+              "taxes": [],
+              "meta_data": [
+                {
+                  "id": 911847,
+                  "key": "_last_added_fee",
+                  "value": "Recargo del 4% + IVA por pago con paypal",
+                  "display_key": "_last_added_fee",
+                  "display_value": "Recargo del 4% + IVA por pago con paypal"
+                }
+              ]
+            }
+          ],
+          "coupon_lines": [],
+          "refunds": [],
+          "payment_url": "https://www.herbolarioagave.com/checkout/order-pay/86913/?pay_for_order=true&key=wc_order_lh7FFfSkBgfRA",
+          "is_editable": false,
+          "needs_payment": false,
+          "needs_processing": true,
+          "date_created_gmt": "2025-07-11T19:10:06",
+          "date_modified_gmt": "2025-07-11T19:10:09",
+          "date_completed_gmt": null,
+          "date_paid_gmt": "2025-07-11T19:10:09",
+          "currency_symbol": "€",
+          "_links": {
+            "self": [
+              {
+                "href": "https://www.herbolarioagave.com/wp-json/wc/v3/orders/86913",
+                "targetHints": {
+                  "allow": [
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "PATCH",
+                    "DELETE"
+                  ]
+                }
+              }
+            ],
+            "collection": [
+              {
+                "href": "https://www.herbolarioagave.com/wp-json/wc/v3/orders"
+              }
+            ],
+            "email_templates": [
+              {
+                "embeddable": true,
+                "href": "https://www.herbolarioagave.com/wp-json/wc/v3/orders/86913/actions/email_templates"
+              }
+            ],
+            "customer": [
+              {
+                "href": "https://www.herbolarioagave.com/wp-json/wc/v3/customers/14493"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_existing_contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Crear_Contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear_Contacto": {
+      "main": [
+        [
+          {
+            "node": "Obtener_Contacto_Creado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener_Contacto_Creado": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_new_contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar_Contacto": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Productos_WC": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "producto_individual_wc": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "get_current_sale_order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "producto_individual_wc",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "producto_no_encontrado_wc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line1": {
+      "main": [
+        [
+          {
+            "node": "Switch4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campos_WC": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_existing_contact": {
+      "main": [
+        [
+          {
+            "node": "If8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estado de Conexión": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "producto_no_encontrado_wc": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "order_status_completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar_Productos1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo": {
+      "main": [
+        [
+          {
+            "node": "WooCommerce1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WooCommerce1": {
+      "main": [
+        [
+          {
+            "node": "WooCommerce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Odoo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WooCommerce": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Buscar_Productos1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_cancelled_sales_order": {
+      "main": [
+        [
+          {
+            "node": "Odoo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_current_sale_order": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar_Productos": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_new_contact": {
+      "main": [
+        [
+          {
+            "node": "If10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "producto_individual_wc1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "get_current_sale_order1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "producto_individual_wc1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "producto_no_encontrado_wc1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line2": {
+      "main": [
+        [
+          {
+            "node": "Switch3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estado de Conexión1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "producto_no_encontrado_wc1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [],
+        [
+          {
+            "node": "order_status_completed1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_current_sale_order1": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar_Productos2": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Productos_WC1": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "descuentos-odoo": {
+      "main": [
+        [
+          {
+            "node": "descuentos-odoo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "order_status_completed1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "envio-odoo": {
+      "main": [
+        [
+          {
+            "node": "descuentos-odoo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo3": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Buscar_Contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WooCommerce Trigger": {
+      "main": [
+        [
+          {
+            "node": "Campos_WC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Buscar_Productos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "producto_no_encontrado_wc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Buscar_Productos2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "producto_no_encontrado_wc1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Odoo3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get_cancelled_sales_order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line3": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo5": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo4": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo7": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo6": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo9": {
+      "main": [
+        [
+          {
+            "node": "Estado de Conexión1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo8": {
+      "main": [
+        [
+          {
+            "node": "Estado de Conexión1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo11": {
+      "main": [
+        [
+          {
+            "node": "Estado de Conexión",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo10": {
+      "main": [
+        [
+          {
+            "node": "Estado de Conexión",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If8": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line7": {
+      "main": [
+        [
+          {
+            "node": "If9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If10": {
+      "main": [
+        [
+          {
+            "node": "env-wc",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If9": {
+      "main": [
+        [
+          {
+            "node": "rec-contrareembolso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If11": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line10": {
+      "main": [
+        [
+          {
+            "node": "If16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If12": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line11": {
+      "main": [
+        [
+          {
+            "node": "If15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line12": {
+      "main": [
+        [
+          {
+            "node": "If14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If14": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line13",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Productos_WC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line13": {
+      "main": [
+        [
+          {
+            "node": "Productos_WC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If15": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line14",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Productos_WC1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sale_Order_Line14": {
+      "main": [
+        [
+          {
+            "node": "Productos_WC1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If16": {
+      "main": [
+        [
+          {
+            "node": "Sale_Order_Line12",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rec-contrareembolso": {
+      "main": [
+        [
+          {
+            "node": "If12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "env-wc": {
+      "main": [
+        [
+          {
+            "node": "If11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch4": {
+      "main": [
+        [
+          {
+            "node": "Odoo10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Odoo6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Odoo4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch3": {
+      "main": [
+        [
+          {
+            "node": "Odoo8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo9",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo9",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d0c28aaf-000b-44cb-8c94-6ed68025f1a5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "MQJjMUP1dlOtKGnP",
+  "tags": [
+    {
+      "createdAt": "2024-10-03T09:49:47.828Z",
+      "updatedAt": "2024-10-03T09:49:47.828Z",
+      "id": "gGTJlMaTGEjoTVNf",
+      "name": "MMProject"
+    }
+  ]
+}
