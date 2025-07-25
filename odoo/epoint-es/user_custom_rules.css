@@ -7,137 +7,122 @@
 // }
 //
 
-
 body {
   /* Ajusta este valor para que coincida con la 'height' de #custom-top-banner (ej. 50px) */
   padding-top: 80px !important;
 }
 
-header nav[aria-label="Main"] .navbar-nav:nth-child(3){
-    // background: blue;
-    margin-right: 130px;
+header nav[aria-label="Main"] .navbar-nav:nth-child(3) {
+  // background: blue;
+  margin-right: 130px;
 }
 
-header nav[aria-label="Main"] #top_menu{
-    width: 100%;
+header nav[aria-label="Main"] #top_menu {
+  width: 100%;
 }
-// mark.mordvin@epoint.es || Estilos custom para la navbar: 
-ul#top_menu li:nth-of-type(2) div.o_mega_menu.show  {
-    top: unset;
-    width: 500px;
-    left: 400px;
-/*     background: red !important; */
-  
+// mark.mordvin@epoint.es || Estilos custom para la navbar:
+ul#top_menu li:nth-of-type(2) div.o_mega_menu.show {
+  top: unset;
+  width: 500px;
+  left: 400px;
 }
 
 #ul#top_menu li:nth-of-type(2) div.o_mega_menu.show a:hover {
   color: #f48cca !important;
 }
 
-ul#top_menu li:nth-of-type(2)  div.o_mega_menu section {
+ul#top_menu li:nth-of-type(2) div.o_mega_menu section {
   // background: transparent !important;
-  
 }
 
-header nav[aria-label="Main"] .dropdown-menu .s_mega_menu_little_icons_icon  {
-    display:none ;
-  
+header nav[aria-label="Main"] .dropdown-menu .s_mega_menu_little_icons_icon {
+  display: none;
 }
 header nav[aria-label="Mobile"].navbar {
-    // margin-left: -300px;
+  // margin-left: -300px;
 }
-  
 
-header nav[aria-label="Mobile"].navbar .o_header_mobile_buttons_wrap  {
-    width: 80px ;
-}  
-
-
-
+header nav[aria-label="Mobile"].navbar .o_header_mobile_buttons_wrap {
+  width: 80px;
+}
 
 .navbar {
-    height: 90px; 
-    padding-top: 5px; 
-    padding-bottom: 5px;
-    font-size: 30px;
-    font-weight: bold;
-    //margin-left: -300px;
-    display: flex;
-    justify-content: space-between; /* This will push your nav items to each end */
-    align-items: center; /* Keeps items vertically aligned */
+  height: 90px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 30px;
+  font-weight: bold;
+  //margin-left: -300px;
+  display: flex;
+  justify-content: space-between; /* This will push your nav items to each end */
+  align-items: center; /* Keeps items vertically aligned */
 }
 
 .nav-link {
+  position: relative;
+  line-height: 40px;
+
+  &::before {
+    content: "•";
+    color: #ed008c;
+    margin-right: 5px;
+    font-size: 57px;
     position: relative;
-    line-height: 40px;
-    
-    &::before {
-        content: "•";  
-        color: #ed008c;   
-        margin-right: 5px; 
-        font-size: 57px; 
-        position: relative;
-        top: 8px;
-        left: 8px;
-    }
+    top: 8px;
+    left: 8px;
+  }
 }
 
-
-
-
-#top_menu .nav-item:nth-child(1) { 
-    position: relative;
-    top: 0px; 
-    padding-right: 5px;
-
+#top_menu .nav-item:nth-child(1) {
+  position: relative;
+  top: 0px;
+  padding-right: 5px;
 }
 
-#top_menu .nav-item:nth-child(2) { 
-    position: relative ;
-    top: -20px; 
-    margin-top: -16px;
-    padding-right: -10px ;
+#top_menu .nav-item:nth-child(2) {
+  position: relative;
+  top: -20px;
+  margin-top: -16px;
+  padding-right: -10px;
 }
 
-#top_menu .nav-item:nth-child(3) { 
-    position: relative;
-    top: 4px; 
-    left: -10px;
+#top_menu .nav-item:nth-child(3) {
+  position: relative;
+  top: 4px;
+  left: -10px;
 }
 
-#top_menu .nav-item:nth-child(4) { 
-    position: relative;
-    top: -12px; 
+#top_menu .nav-item:nth-child(4) {
+  position: relative;
+  top: -12px;
 }
 
-#top_menu .nav-item:nth-child(5) { 
-    position: relative;
-    top: 18px; 
+#top_menu .nav-item:nth-child(5) {
+  position: relative;
+  top: 18px;
 }
 
 #top_menu .nav-item:nth-child(6) {
-    position: relative;
-    top: -12px; 
-    left: 0px;
+  position: relative;
+  top: -12px;
+  left: 0px;
 }
 
 // navbar animations
 
 #wrapwrap header .nav-item .nav-link,
 #wrapwrap header .nav-item .nav-link span {
-    transition: color 0.3s ease-in-out;
+  transition: color 0.3s ease-in-out;
 }
-
 
 #wrapwrap header .nav-item .nav-link:hover,
 #wrapwrap header .nav-item .nav-link:hover span {
-    color: #f48cca !important;
-
+  color: #f48cca !important;
 }
 
 /* Remove any max-width constraints that might be forcing the collapse */
 
-@media (min-width: 500px){
+@media (min-width: 500px) {
   .o_main_nav {
     margin-left: 0;
     margin-right: 0;
@@ -147,15 +132,14 @@ header nav[aria-label="Mobile"].navbar .o_header_mobile_buttons_wrap  {
 }
 
 .navbar .o_main_nav {
-    // padding-left: 2rem;
-    // padding-right: 3rem;
+  // padding-left: 2rem;
+  // padding-right: 3rem;
 }
 
-
 @media (max-width: 990px) {
- .o_small-fs{
-   font-size: 15px !important;
- }
+  .o_small-fs {
+    font-size: 15px !important;
+  }
 }
 
 // HOMEPAGE
@@ -163,184 +147,171 @@ header nav[aria-label="Mobile"].navbar .o_header_mobile_buttons_wrap  {
   font-size: 1.1em !important;
 }
 
-
-
 // mark.mordvin@epoint.es || Estilos custom para la navbar del teléfono
-
 
 @media (max-width: 990px) {
   .navbar {
     background-color: white;
   }
   .navbar-toggler-icon {
-    background-image: none !important; 
-    background-color: black; 
-    height: 3px; 
-    width: 25px; 
+    background-image: none !important;
+    background-color: black;
+    height: 3px;
+    width: 25px;
     position: relative;
     margin-right: -60px;
-}
+  }
 
-.navbar-toggler-icon::before,
-.navbar-toggler-icon::after {
-    content: '';
+  .navbar-toggler-icon::before,
+  .navbar-toggler-icon::after {
+    content: "";
     display: block;
-    background-color: black; 
+    background-color: black;
     height: 3px;
-    width: 25px; 
+    width: 25px;
     position: absolute;
     left: 0;
-}
+  }
 
-.navbar-toggler-icon::before {
+  .navbar-toggler-icon::before {
     top: -8px; /* Position the top stripe above the middle stripe */
-}
+  }
 
-.navbar-toggler-icon::after {
+  .navbar-toggler-icon::after {
     top: 8px; /* Position the bottom stripe below the middle stripe */
-}
+  }
 
- .mobile-logo-container {
-        // margin-left: 45%; /* Push the logo to the right */
-        // margin-right: 50px;
-        margin-top: 20px;/* Add 10px space from the edge */
-    }
+  .mobile-logo-container {
+    // margin-left: 45%; /* Push the logo to the right */
+    // margin-right: 50px;
+    margin-top: 20px; /* Add 10px space from the edge */
+  }
 
-    .mobile-only-logo {
-        max-width: 130px; /* Adjust the logo size */
-        height: auto; /* Maintain aspect ratio */
-        display: block; 
-    }
-
+  .mobile-only-logo {
+    max-width: 130px; /* Adjust the logo size */
+    height: auto; /* Maintain aspect ratio */
+    display: block;
+  }
 }
 
 @media (min-width: 991px) {
   .mobile-only-logo {
     display: none;
   }
-};
+}
 
 /* mark.mordvin@epoint.es || Estilos custom para la sección superior de la navbar */
 
 .custom-top-section {
-    width:auto; 
-    background-color: #ffffff; 
-    padding: 5px 10px; 
-    font-size: 14px; 
-    z-index: 1000; 
-    display: flex;
-    align-items: center; 
-    
+  width: auto;
+  background-color: #ffffff;
+  padding: 5px 10px;
+  font-size: 14px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
 }
-.custom-top-section div:nth-child(1){
-    margin-right: 130px;
+.custom-top-section div:nth-child(1) {
+  margin-right: 130px;
 }
 
 .custom-top-section .company-logo {
-    margin-left: auto; 
+  margin-left: auto;
 }
 
 .custom-top-section .company-logo img {
-    height: 70px; 
-    max-width: 100%; 
+  height: 70px;
+  max-width: 100%;
 }
 
 @media (max-width: 990px) {
   .custom-top-section {
     display: none;
   }
-
-
 }
 /* mark.mordvin@epoint.es || botón de identificarse */
 
 .btn.btn-outline-secondary {
-    background: none;
-    color: white;
-    font-size: 30px;
-    font-weight: bold;
-    padding: 5px 10px;
-    line-height: 40px;
-    border: none;
-    // transform: translateX(67%);
+  background: none;
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+  padding: 5px 10px;
+  line-height: 40px;
+  border: none;
+  // transform: translateX(67%);
 }
 
 .btn.btn-outline-secondary::before {
-    content: "•";
-    color: #ed008c;
-    font-size: 57px;
-    position: absolute;
-    top: 3px;
-    left: -30px;
+  content: "•";
+  color: #ed008c;
+  font-size: 57px;
+  position: absolute;
+  top: 3px;
+  left: -30px;
 }
 
 .navbar .btn.btn-outline-secondary {
-    background: none !important;
-    color: white !important;
-   
+  background: none !important;
+  color: white !important;
 }
 
 // Sin iniciar sesión
 
 .btn-sign-in {
-
-    font-size: 0px;/* Makes the font bold */
-
-
+  font-size: 0px; /* Makes the font bold */
 }
 
 .btn.btn-outline-secondary {
-    background: none;
-    color: white;
-    font-size: 30px;
-    font-weight: bold;
-    padding: 5px 10px;
-    line-height: 40px;
-    border: none;
+  background: none;
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+  padding: 5px 10px;
+  line-height: 40px;
+  border: none;
 }
 
 .btn.btn-outline-secondary::before {
-    content: "•";
-    color: #ed008c; /* Pink color for the bullet */
-    font-size: 57px;
-    position: absolute;
-    top: 3px; /* Aligns the bullet vertically */
-    left: -30px; /* Aligns the bullet horizontally to the left of the button */
+  content: "•";
+  color: #ed008c; /* Pink color for the bullet */
+  font-size: 57px;
+  position: absolute;
+  top: 3px; /* Aligns the bullet vertically */
+  left: -30px; /* Aligns the bullet horizontally to the left of the button */
 }
 
 .navbar .btn.btn-outline-secondary {
-    background: none !important;
-    color: white !important; /* Ensures the text color is white even if other styles try to override it */
+  background: none !important;
+  color: white !important; /* Ensures the text color is white even if other styles try to override it */
 }
-
 
 // mark.mordvin@epoint.es || Estilos custom para la página de CONTACTO:
 
 .s_showcase h3 {
   position: relative;
-    line-height: 40px;
-    font-weight: bold;
+  line-height: 40px;
+  font-weight: bold;
 
-    
-    &::before {
-        content: "•";
-        color: #ed008c; // Pink color, adjust as needed
-        font-size: 57px; // Adjust as needed
-        position: relative;
-        top: 6px; // Adjust vertical alignment if necessary
-        right: 40px;
-        margin-right: -33px;
-    }
+  &::before {
+    content: "•";
+    color: #ed008c; // Pink color, adjust as needed
+    font-size: 57px; // Adjust as needed
+    position: relative;
+    top: 6px; // Adjust vertical alignment if necessary
+    right: 40px;
+    margin-right: -33px;
+  }
 }
 
 // mark.mordvin@epoint.es || Estilos custom para la página de KIT DIGITAL:
 
 .display-1-fs {
-    font-size: 150px; 
+  font-size: 150px;
 }
 
 .kd-custom-btn {
-  border: 2px solid #EC008C;
+  border: 2px solid #ec008c;
   padding: 10px;
   border-radius: 15px;
   transition: all 0.3s ease;
@@ -350,28 +321,27 @@ header nav[aria-label="Mobile"].navbar .o_header_mobile_buttons_wrap  {
   background-color: #ffe6f5;
 }
 
-
 //mark.mordvin@epoint.es || Other
 
 .image-down {
-    margin-top: 17px;
+  margin-top: 17px;
 }
 
 // mark.mordvin@epoint.es || Alineación de textos a la izquierda a pesar de que estén a la derecha
 
 /* Default styling remains unchanged */
 @media (max-width: 990px) {
-    /* Target all elements with inline text-align: right */
-    [style*="text-align: right"] {
-        text-align: left !important;
-    }
-    
-    .h1-fs {
-        font-size: 1rem; /* Reduce size for smaller screens */
-    }
-    .h4-fs {
-        font-size: 1rem; /* Reduced size for smaller screens */
-    }
+  /* Target all elements with inline text-align: right */
+  [style*="text-align: right"] {
+    text-align: left !important;
+  }
+
+  .h1-fs {
+    font-size: 1rem; /* Reduce size for smaller screens */
+  }
+  .h4-fs {
+    font-size: 1rem; /* Reduced size for smaller screens */
+  }
 }
 
 // BLOG logo section
@@ -388,34 +358,33 @@ header nav[aria-label="Mobile"].navbar .o_header_mobile_buttons_wrap  {
 // blog single post
 
 // blog search bar
-.navbar-expand-sm{
- margin-top: 0px !important;
+.navbar-expand-sm {
+  margin-top: 0px !important;
 }
 
 .o_searchbar_form {
   margin-bottom: 25px;
 }
 /* Blog post cover styles */
-      .o_record_cover_component {
+.o_record_cover_component {
+  position: relative !important;
+  height: 250px;
+  padding-top: 0px !important;
+}
+.website_blog #o_wblog_posts_loop .o_record_cover_container {
+  padding-top: 0 !important;
+}
 
-          position: relative !important;
-          height: 250px;
-          padding-top: 0px !important;
-      }
-      .website_blog #o_wblog_posts_loop .o_record_cover_container{
-        padding-top: 0 !important;
-      }   
-      
-      .o_record_cover_container .o_record_cover_component {
-        height: 250px;
-      }
-      
-      .h-100{
-        height: auto !important;
-      }
-      .card-body {
-        padding-left: 0px !important;
-      }
+.o_record_cover_container .o_record_cover_component {
+  height: 250px;
+}
+
+.h-100 {
+  height: auto !important;
+}
+.card-body {
+  padding-left: 0px !important;
+}
 
 .text-muted span:nth-of-type(2) {
   display: none;
@@ -423,27 +392,30 @@ header nav[aria-label="Mobile"].navbar .o_header_mobile_buttons_wrap  {
 
 // Individual post page
 .o_wblog_post_page_cover .o_record_cover_component {
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
-    background-size: contain !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
-    box-shadow: none;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  background-size: contain !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  box-shadow: none;
 }
 
 @media (max-width: 1200px) {
-  .website_blog #o_wblog_posts_loop .o_record_cover_container .o_record_cover_component {
+  .website_blog
+    #o_wblog_posts_loop
+    .o_record_cover_container
+    .o_record_cover_component {
     background-size: contain !important;
     background-position: center center !important;
     background-repeat: no-repeat !important;
   }
-  
+
   .o_searchbar_form {
-  margin-top: 5px;
-}
+    margin-top: 5px;
+  }
 }
 
 @media (min-width: 754px) and (max-width: 1200px) {
@@ -452,84 +424,71 @@ header nav[aria-label="Mobile"].navbar .o_header_mobile_buttons_wrap  {
   }
 }
 
-
 // BLOG page
 
 .o_wblog_post_page_cover_regular {
   box-shadow: none !important;
 }
 
-
 .js_follow_btn {
   display: none;
 }
 .row.justify-content-between > div:first-child {
-    order: 2; /* Move first div to the right */
+  order: 2; /* Move first div to the right */
 }
 
 .row.justify-content-between > div:last-child {
-    order: 1; /* Move second div to the left */
-    border-right: 1px solid #e6e6e6; /* Adjust thickness and color as needed */
-    padding-right: 15px;
-    background-color: #f7f5f5;
-    border-radius: 5px;
+  order: 1; /* Move second div to the left */
+  border-right: 1px solid #e6e6e6; /* Adjust thickness and color as needed */
+  padding-right: 15px;
+  background-color: #f7f5f5;
+  border-radius: 5px;
 }
-
-
-
 
 // formularios con recaptcha
 
 #submit-button.disabled-button {
-    color: gray !important; 
-    opacity: 0.3 !important; 
-    pointer-events: none; 
-    cursor: not-allowed !important; 
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s; 
+  color: gray !important;
+  opacity: 0.3 !important;
+  pointer-events: none;
+  cursor: not-allowed !important;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
-// botón de envío de formularios: 
+// botón de envío de formularios:
 
 .s_website_form_send {
-    border: 2px solid #EC008C !important;
-    color: #EC008C !important;
-    border-radius: 5px !important;
-    background-color: white !important;
-    transition: all 0.3s ease-in-out;
+  border: 2px solid #ec008c !important;
+  color: #ec008c !important;
+  border-radius: 5px !important;
+  background-color: white !important;
+  transition: all 0.3s ease-in-out;
 }
 
 /* Hover effect */
 .s_website_form_send:hover {
-    background-color: #ffd8ef !important;
-
+  background-color: #ffd8ef !important;
 }
-
-
 
 // imágenes con links
 
 /* Target all images inside links */
 a img:hover {
-    animation: pulsate 1s infinite alternate;
+  animation: pulsate 1s infinite alternate;
 }
 
 /* Define the pulsating animation */
 @keyframes pulsate {
-    0% {
-        transform: scale(1);
-    }
-    100% {
-        transform: scale(1.05);
-    }
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.05);
+  }
 }
-
-
-
 
 /*------------------------------------------------------*
  |                   Página de contacto                 |
  *------------------------------------------------------*/
-
-
 
 /* Al pasar el ratón sobre la zona .hover-container, 
    el botón aparece suavemente */
@@ -544,8 +503,8 @@ a img:hover {
 }
 
 #channelsModal .card:hover {
-  transform: scale(1.05);          /* Efecto de “zoom” */
-  box-shadow: 0 0 15px rgba(0,0,0,0.2); /* Aumenta la sombra en hover */
+  transform: scale(1.05); /* Efecto de “zoom” */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Aumenta la sombra en hover */
 }
 
 #channelsModal .card-body {
@@ -564,129 +523,93 @@ a img:hover {
 /* Solo agrandar el ícono en hover */
 #channelsModal .card:hover .card-body i {
   transform: scale(1.1);
-  color: rgb(165, 0, 98) !important; 
-  
+  color: rgb(165, 0, 98) !important;
 }
-
-
-
 
 //PAra el enlace dentro del modal de telefono de contacto.
 .phone-icon {
-        transition: transform 0.4s ease-in-out;
-    }
+  transition: transform 0.4s ease-in-out;
+}
 
 a:hover .phone-icon {
-    transform: scale(1.2);
+  transform: scale(1.2);
 }
 
 /*------------------------------------------------------*
  |                  FIN Página de contacto              |
  *------------------------------------------------------*/
 
-
-
-
-
-
-
 /*---------------------------------------------------------*
  |                 Página Casos de Exito                   |
  *--------------------------------------------------------*/
- 
- //Wrapper para solo referirnos al bloque que queremos
-#wrapper_entradas_blog_casos_exito{
-  
+
+//Wrapper para solo referirnos al bloque que queremos
+#wrapper_entradas_blog_casos_exito {
   // background:  blue; //Esto se pone para reconocer si el contenedor está funcionando o no.
 }
- 
- 
+
 #wrapper_entradas_blog_casos_exito .o_record_cover_container {
- 
   height: 100% !important;
   width: 100% !important;
 }
 
 #wrapper_entradas_blog_casos_exito .card-body {
-    text-align: left; /* Aligns content to the left */
-    padding: 20px !important; /* Adds proper padding */
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Keeps vertical alignment consistent */
+  text-align: left; /* Aligns content to the left */
+  padding: 20px !important; /* Adds proper padding */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Keeps vertical alignment consistent */
 }
 
-#wrapper_entradas_blog_casos_exito .card-footer{
+#wrapper_entradas_blog_casos_exito .card-footer {
   display: none !important;
 }
 
-#wrapper_entradas_blog_casos_exito a.s_blog_posts_post_cover{
+#wrapper_entradas_blog_casos_exito a.s_blog_posts_post_cover {
   height: 210px !important;
 }
 
 #wrapper_entradas_blog_casos_exito .o_record_cover_container {
-  background:red;  
+  background: red;
 }
 
+#wrapper_entradas_blog_casos_exito
+  .o_record_cover_component.o_record_cover_image {
+  background-size: contain !important; /* Asegura que la imagen se ajuste completa sin recortes */
+  background-position: top !important; /* Centra la imagen */
 
-#wrapper_entradas_blog_casos_exito .o_record_cover_component.o_record_cover_image  {
-    background-size: contain !important; /* Asegura que la imagen se ajuste completa sin recortes */
-    background-position: top !important; /* Centra la imagen */
+  background-repeat: no-repeat !important; /* Evita que la imagen se repita */
 
-    background-repeat: no-repeat !important; /* Evita que la imagen se repita */
-    
-    width: 100%;
-    
-    
-    //min-height:  304px;
-    top: 0px !important;
+  width: 100%;
+
+  //min-height:  304px;
+  top: 0px !important;
 }
 .o_record_cover_container {
-    background: green
+  background: green;
 }
- 
- 
- .mobile-logo-container {
-   display: none;
- }
- 
+
+.mobile-logo-container {
+  display: none;
+}
 
 /*---------------------------------------------------------*
  |                  FIN Página Casos de Exito              |
  *--------------------------------------------------------*/
- 
- 
- 
- // SEO things
- @media only screen and (max-width: 768px) {
-    /* Example responsive styles */
-    body { font-size: 16px; }
-    /* Other layout adjustments */
-}
 
+// SEO things
+@media only screen and (max-width: 768px) {
+  /* Example responsive styles */
+  body {
+    font-size: 16px;
+  }
+  /* Other layout adjustments */
+}
 
 .o_record_cover_image {
-    height: 300px !important;
-    background-size: contain !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
-    border-radius: 8px;
-
+  height: 300px !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  border-radius: 8px;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
