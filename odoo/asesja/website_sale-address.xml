@@ -1,0 +1,80 @@
+<!-- plantilla website_sale.address | funcionalidad para que aparezca el formulario de la información del caballo en caso de que el producto con el id 20 (seguro del caballo) esté en la cesta-->
+<t t-name="website_sale.address">
+    <t t-call="website_sale.checkout_layout">
+        <div class="o_customer_address_fill">
+            <div>
+                <form action="/shop/address/submit" method="post" name="address_form" class="address_autoformat">
+                    <t t-if="not is_anonymous_cart">
+                        <t t-if="use_delivery_as_billing"><h3 class="mb-3">Su dirección</h3></t>
+                        <t t-elif="address_type == 'delivery'"><h3 class="mb-3">Dirección de entrega</h3></t>
+                        <t t-else="">
+                            <h3 class="mb-3">
+                                <t groups="!account.group_delivery_invoice_address">Su dirección</t>
+                                <t groups="account.group_delivery_invoice_address">Dirección de facturación</t>
+                            </h3>
+                        </t>
+                    </t>
+                    <div t-if="use_delivery_as_billing and not only_services and partner_sudo" class="alert alert-warning" role="alert" groups="account.group_delivery_invoice_address">
+                        <p class="mb-0">Está editando sus direcciones de <b>envío y facturación</b> al mismo tiempo.<br/>Si quiere modificar su dirección de facturación, cree una <a href="/shop/address?address_type=billing">nueva dirección</a>.</p>
+                    </div>
+                    <div id="errors" class="alert alert-danger" style="display: none;"/>
+
+                    <div class="row">
+                        <t t-call="website_sale.address_form_fields"/>
+                    </div>
+
+                    <t t-if="order">
+                        <t t-set="show_form" t-value="False"/>
+                        <t t-foreach="order.website_order_line" t-as="line">
+                            <t t-if="line.product_id.product_tmpl_id.id == 20">
+                                <t t-set="show_form" t-value="True"/>
+                            </t>
+                        </t>
+
+                        <t t-if="show_form">
+                            <div id="info_seguro_caballo" class="row mt-4 border-top pt-4">
+                                <h4 class="col-12">Información para el Seguro del Caballo</h4>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="x_studio_propietario">Propietario</label>
+                                    <input type="text" class="form-control" name="x_studio_propietario" t-att-value="partner.x_studio_propietario if partner else None"/>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="x_studio_dni_del_propietario">DNI del Propietario</label>
+                                    <input type="text" class="form-control" name="x_studio_dni_del_propietario" t-att-value="partner.x_studio_dni_del_propietario if partner else None"/>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="x_studio_nombre_del_caballo">Nombre del Caballo</label>
+                                    <input type="text" class="form-control" name="x_studio_nombre_del_caballo" t-att-value="partner.x_studio_nombre_del_caballo if partner else None"/>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="x_studio_fecha_de_nacimiento_del_caballo">Fecha de Nacimiento del Caballo</label>
+                                    <input type="date" class="form-control" name="x_studio_fecha_de_nacimiento_del_caballo" t-att-value="partner.x_studio_fecha_de_nacimiento_del_caballo if partner else None"/>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="x_studio_ueln">UELN</label>
+                                    <input type="text" class="form-control" name="x_studio_ueln" t-att-value="partner.x_studio_ueln if partner else None"/>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="x_studio_microchip">Microchip</label>
+                                    <input type="text" class="form-control" name="x_studio_microchip" t-att-value="partner.x_studio_microchip if partner else None"/>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="x_studio_localidad">Localidad</label>
+                                    <input type="text" class="form-control" name="x_studio_localidad" t-att-value="partner.x_studio_localidad if partner else None"/>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label" for="x_studio_provincia">Provincia</label>
+                                    <input type="text" class="form-control" name="x_studio_provincia" t-att-value="partner.x_studio_provincia if partner else None"/>
+                                </div>
+                                <div class="mb-3 col-12">
+                                    <label class="form-label" for="x_studio_foto_de_la_documentacin_del_caballo">Foto de la Documentación</label>
+                                    <input type="file" class="form-control" name="x_studio_foto_de_la_documentacin_del_caballo"/>
+                                </div>
+                            </div>
+                        </t>
+                    </t>
+                </form>
+            </div>
+        </div>
+    </t>
+</t>
