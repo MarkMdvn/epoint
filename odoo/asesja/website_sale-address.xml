@@ -1,4 +1,4 @@
-<!-- plantilla website_sale.address | funcionalidad para que aparezca el formulario de la información del caballo en caso de que el producto con el id 20 (seguro del caballo) esté en la cesta-->
+<!-- odoo - plantilla website_sale.address | funcionalidad para que aparezca el formulario de la información del caballo en caso de que el producto con el id 20 (seguro del caballo) esté en la cesta-->
 <t t-name="website_sale.address">
     <t t-call="website_sale.checkout_layout">
         <div class="o_customer_address_fill">
