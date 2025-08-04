@@ -114,7 +114,7 @@
                 //
             </script>
             
-            <script async="async" defer="defer" t-attf-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3AzDH9bcfpx5leYBcRv9t0LO5rA_EcWY&amp;callback=initMap&amp;libraries=marker"/>
+            <script async="async" defer="defer" t-attf-src="https://maps.googleapis.com/maps/api/js?key=API_KEY&amp;callback=initMap&amp;libraries=marker"/>
             <!-- ================================================================== -->
             <!-- == FIN DE LA SECCIÓN DEL MAPA                                   == -->
             <!-- ================================================================== -->
