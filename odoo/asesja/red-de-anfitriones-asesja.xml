@@ -1,0 +1,124 @@
+<t t-name="website.red-de-anfitriones">
+    <t t-call="website.layout">
+        <div id="wrap" class="oe_structure oe_empty">
+            <section class="s_text_block pb0 o_colored_level pt88" data-snippet="s_text_block" data-name="Text" style="position: relative;" data-oe-shape-data="{&quot;shape&quot;:&quot;web_editor/Connections/06&quot;,&quot;colors&quot;:{&quot;c5&quot;:&quot;#112404&quot;},&quot;flip&quot;:[&quot;y&quot;],&quot;showOnMobile&quot;:false,&quot;shapeAnimationSpeed&quot;:&quot;0&quot;}">
+                <div class="o_we_shape o_web_editor_Connections_06" style="background-image: url(&quot;/web_editor/shape/web_editor%2FConnections%2F06.svg?c5=%23112404&amp;flip=y&quot;); background-position: 50% 0%;"/>
+                <div class="s_allow_columns container">
+                    <h1 style="text-align: center;"><strong>Red de Anfitriones</strong></h1>
+                </div>
+            </section>
+            <section class="s_company_team pt48 pb48 o_colored_level" data-snippet="s_company_team" data-name="Team">
+                <div class="container">
+                    <h3 style="text-align: center;"><strong>Qué es y qué puedes esperar</strong></h3>
+                    <p class="lead" style="text-align: center;">Nuestra Red de Anfitriones está compuesta por jinetes como tú con años de experiencia y mucho conocimiento de la zona que cubren. Su misión es darte información y apoyo cuando quieras realizar rutas por su zona o estés de viaje en el área que cubren. No todos ellos son profesionales por lo que <strong>no ofrecen alojamiento para tu caballo</strong>, pero sí podrán asesorarte sobre los mejores sitios para dejarlo en caso de que lo necesites o la persona con la que contactar en cada caso. Pídeles ayuda si necesitas <strong>información sobre itinerarios, el contacto de un alojamiento para ti o para tu caballo, el servicio de un veterinario o un herrador, etc</strong>.&amp;nbsp;</p>
+                    <p class="lead" style="text-align: center;">Nuestra Red de Anfitriones es nuestra manera de hacerte la vida a caballo sencilla vayas donde vayas y que nunca te sientas solo ante cualquier reto o incidencia que puedas tener mientras disfrutas de tu afición</p>
+                    <p class="lead" style="text-align: center;"><br/></p>
+                    <p class="lead" style="text-align: center;"><br/></p>
+                    <div class="row s_nb_column_fixed">
+                        <div class="col-lg-6 pt32 pb32 o_colored_level" data-name="Team Member">
+                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                <div class="col-lg-3 pb24 o_not_editable" contenteditable="false">
+                                    <img src="/web/image/1655-8ef4edb7/Jose%20Luis%20Sevillano%201.webp" alt="Jose Luis Sevillano" class="img-fluid rounded-circle o_editable_media w-lg-100 mx-lg-auto img o_we_custom_image" data-mimetype="image/webp" data-original-id="1653" data-original-src="/web/image/1653-2157b5ee/Jose%20Luis%20Sevillano%201.jpg" data-mimetype-before-conversion="image/jpeg" data-resize-width="NaN"/>
+                                </div>
+                                <div class="col-lg-9">
+                                    <h4 class="h5-fs">José Luis Sevillano&amp;nbsp;</h4>
+                                    <p class="text-muted mb-3">León</p>
+                                    <p class="text-muted mb-3">Tel: 629866337</p>
+                                    <p>30 años montando a caballo casi siempre en compañía de mi mujer, rutas de montaña por el norte de León, (Picos de Europa, parque nacional de Redes, picos de Mampodre, etc) enumero estos lugares porque son los preferídos, también playas, Babia,&amp;nbsp;Bierzo,&amp;nbsp;etc.&amp;nbsp;<br/></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 pt32 pb32 o_colored_level" data-name="Team Member">
+                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                <div class="col-lg-3 pb24 o_not_editable" contenteditable="false">
+                                    <img src="/web/image/1657-8cb356ba/Jose%20mato%202.webp" alt="José Mato Miguelez" class="img-fluid rounded-circle o_editable_media w-lg-100 mx-lg-auto img o_we_custom_image" data-mimetype="image/webp" data-original-id="1652" data-original-src="/web/image/1652-6f65de81/Jose%20mato%202.jpg" data-mimetype-before-conversion="image/jpeg" data-resize-width="NaN"/>
+                                </div>
+                                <div class="col-lg-9">
+                                    <h4 class="h5-fs">José Mato Miguelez</h4>
+                                    <p class="text-muted mb-3">Galicia</p>
+                                    <p class="text-muted mb-3">Tel:&amp;nbsp;</p>
+                                    <p>FALTA TEXTO</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 pt32 pb32 o_colored_level" data-name="Team Member">
+                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                <div class="col-lg-3 pb24 o_not_editable" contenteditable="false">
+                                    <img alt="Gabriel Méndez Nombela" src="/web/image/website.s_company_team_image_3" class="img-fluid rounded-circle o_editable_media w-lg-100 mx-lg-auto" loading="lazy"/>
+                                </div>
+                                <div class="col-lg-9">
+                                    <h4 class="h5-fs">Gabriel Méndez Nombela.</h4>
+                                    <p class="text-muted mb-3">Sierra de Gredos</p>
+                                    <p class="text-muted mb-3">Tel:&amp;nbsp;</p>
+                                    <p style="margin-bottom: 0px;">Fui propietario y guía de Gredos Ecuestre desde 2007 a 2022, periodo durante el que realicé rutas guiadas de corto, medio y largo recorrido, con base en la cara sur de la Sierra de Gredos, en Arenas de San Pedro (Ávila). Ahora sigo en el mundo del caballo&amp;nbsp;</p>
+                                    <p style="margin-bottom: 0px;"><br/></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 pt32 pb32 o_colored_level" data-name="Team Member">
+                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                <div class="col-lg-3 pb24 o_not_editable" contenteditable="false">
+                                    <img src="/web/image/1656-f29060b1/Jos%C3%A9%20Miguel%20Delgado%20.webp" alt="José Miguel Delgado Almazán" class="img-fluid rounded-circle o_editable_media w-lg-100 mx-lg-auto img o_we_custom_image" data-mimetype="image/webp" data-original-id="1654" data-original-src="/web/image/1654-a7a8ba51/Jos%C3%A9%20Miguel%20Delgado%20.jpg" data-mimetype-before-conversion="image/jpeg" data-resize-width="NaN"/>
+                                </div>
+                                <div class="col-lg-9">
+                                    <h4 class="h5-fs">José Miguel Delgado Almazán&amp;nbsp;</h4>
+                                    <p class="text-muted mb-3">Teruel&amp;nbsp;</p>
+                                    <p class="text-muted mb-3">Tel: 616496193</p>
+                                    <p>Soy porpietario de Tramacastilla, y&amp;nbsp;profesional del turismo ecuestre desde 2011. Entre muchas otras actividades he colaborado&amp;nbsp;en la homologación por parte de la Real Federación Hípica Española de los Itinerarios Ecuestres: IE-012 Sierra de Albarracín: Tramacastilla e IE-034 Montes Universales- Sierra de Albarracín.&amp;nbsp;</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================================== -->
+            <!-- == SECCIÓN DEL MAPA (VERSIÓN CORREGIDA PARA ODOO)               == -->
+            <!-- ================================================================== -->
+            <section class="s_map_custom container pt-5 pb-5">
+                <h3 style="text-align: center; margin-bottom: 2rem;"><strong>Encuentra a tu Anfitrión más cercano</strong></h3>
+                <!-- Div where the map will be rendered -->
+                <div id="map" style="height: 600px; width: 100%; border-radius: 1rem;"/>
+            </section>
+
+            <script type="text/javascript">
+                //
+                    function initMap() {
+                        const locations = [
+                            { lat: 42.5986, lng: -5.5671, name: 'José Luis Sevillano', area: 'León' },
+                            { lat: 42.8805, lng: -8.5456, name: 'José Mato Miguelez', area: 'Galicia (Santiago de Compostela)' },
+                            { lat: 40.2078, lng: -5.0894, name: 'Gabriel Méndez Nombela', area: 'Sierra de Gredos (Arenas de San Pedro)' },
+                            { lat: 40.3456, lng: -1.1065, name: 'José Miguel Delgado Almazán', area: 'Teruel' }
+                        ];
+                        const mapCenter = { lat: 40.416775, lng: -3.703790 };
+                        const map = new google.maps.Map(document.getElementById("map"), {
+                            zoom: 6,
+                            center: mapCenter,
+                            mapId: 'ANFITRIONES_MAP_ID'
+                        });
+                        const infowindow = new google.maps.InfoWindow();
+                        locations.forEach(location =&gt; {
+                            const marker = new google.maps.Marker({
+                                position: { lat: location.lat, lng: location.lng },
+                                map: map,
+                                title: `${location.name} (${location.area})`,
+                                animation: google.maps.Animation.DROP,
+                            });
+                            marker.addListener('click', () =&gt; {
+                                const content = `&lt;div style="font-weight: bold;"&gt;${location.name}&lt;/div&gt;&lt;div&gt;${location.area}&lt;/div&gt;`;
+                                infowindow.setContent(content);
+                                infowindow.open(map, marker);
+                            });
+                        });
+                    }
+                //
+            </script>
+            
+            <script async="async" defer="defer" t-attf-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3AzDH9bcfpx5leYBcRv9t0LO5rA_EcWY&amp;callback=initMap&amp;libraries=marker"/>
+            <!-- ================================================================== -->
+            <!-- == FIN DE LA SECCIÓN DEL MAPA                                   == -->
+            <!-- ================================================================== -->
+
+        </div>
+    </t>
+</t>
