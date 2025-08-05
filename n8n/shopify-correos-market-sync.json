@@ -1,0 +1,573 @@
+{
+  "name": "Shopify to Correos Market",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "product",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {}
+      },
+      "id": "65f3b300-c262-4644-96bf-722b6f5ad2ba",
+      "name": "Shopify1",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [
+        768,
+        448
+      ],
+      "executeOnce": false,
+      "alwaysOutputData": false,
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "cWKYISsbg6U27WzU",
+          "name": "Shopify Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://merchant-api.market.correos.es/v1/products",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "a0006255-66de-440c-b62d-f0882d1104e2",
+      "name": "Crear productos Merchant1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1568,
+        464
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "O1SIf3x50e43Hsoi",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"model\": \"{{ $json.title }}\",\n  \"shippingtypecode\": \"PA-0-2\",\n  \"weight\": \"{{ $json.variants[0].weight }}\",\n  \"categoryid\": 55,\n  \"brandid\": 42,\n  \"sku\": \"{{ $json.variants[0].sku }}\",\n  \"barcode\": \"\",\n  \"manufactureritemcode\": \"AZ0123456789\",\n  \"recommendedSalesPrice\": \"{{ $json.variants[0].price }}\",\n  \"description\": \"{{ $json.body_html.replace(/<[^>]*>/g, '').replace(/\\n/g, '') }}\",\n  \"tags\": \"{{ $json.tags }}\",\n  \"productResourceUrl\": [\n    {\n      \"url\": \"{{ $json.image.src.split('?')[0] }}\",\n      \"alttext\": \"{{ $json.image.alt || '' }}\",\n      \"isdefault\": false,\n      \"sortorder\": 0\n    }\n  ],\n  \"productVariants\": {{ JSON.stringify($json.variants.map((v, i) => ({\n    [`variantTypeId${i+1}`]: v.id = i,\n    ...$json.options.reduce((acc, o, j) => ({...acc, [`type${j+1}`]: v[`option${j+1}`] || ''}), {}),\n    sku: v.sku,\n    barcode: v.barcode || '',\n    sortorder: v.position,\n    weight: v.weight,\n    isactive: v.inventory_policy !== 'deny'\n  }))) }},\n  \"merchantListing\": {\n    \"price\": {{ $json.variants[0].price }},\n    \"valueaddedtax\": 21,\n    \"qty\": {{ $json.variants.reduce((total, variant) => total + (variant.inventory_quantity || 0), 0) }},\n    \"expectedshipment\": 3,\n    \"status\": {{ $json.status == \"active\" ? true : false }}\n  }\n}",
+        "options": {}
+      },
+      "id": "3b085d12-f0e7-4533-b7a7-df26fda169dc",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "d5c8de0a-babd-4692-bcee-1f829d15a210",
+      "name": "Loop Over Items1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        448
+      ],
+      "alwaysOutputData": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "orders/create"
+      },
+      "id": "103bc8b1-06f9-4ee8-8f59-005d0c260be1",
+      "name": "Pedido creado",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        432,
+        80
+      ],
+      "webhookId": "ef4cec01-e81c-4631-96f5-a42a7c3a5cb1"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "products/update"
+      },
+      "id": "f9c1f5b1-98fd-414c-b665-32666e1fed4a",
+      "name": "Nuevo producto",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        432,
+        512
+      ],
+      "webhookId": "56c943e3-890b-4b90-848b-dc2e5695df81"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "products/delete"
+      },
+      "id": "2ef4e120-ee0d-49ee-b32d-273503d142b8",
+      "name": "Producto eliminado",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        432,
+        640
+      ],
+      "webhookId": "56c943e3-890b-4b90-848b-dc2e5695df81"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "products/update"
+      },
+      "id": "49c996de-8db6-4526-b01f-b02167b195f3",
+      "name": "Producto actualizado",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        432,
+        784
+      ],
+      "webhookId": "56c943e3-890b-4b90-848b-dc2e5695df81",
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "cWKYISsbg6U27WzU",
+          "name": "Shopify Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "orders/cancelled"
+      },
+      "id": "11d60804-f11c-4c58-9d0a-4b3620011ab6",
+      "name": "Pedido cancelado",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        432,
+        368
+      ],
+      "webhookId": "ef4cec01-e81c-4631-96f5-a42a7c3a5cb1"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "orders/updated"
+      },
+      "id": "df6481ed-e82c-4bef-96ad-048ded03e7c7",
+      "name": "Pedido actualizado",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        432,
+        224
+      ],
+      "webhookId": "ef4cec01-e81c-4631-96f5-a42a7c3a5cb1"
+    },
+    {
+      "parameters": {
+        "content": "## Se ejecuta cuando alguna de las acciones de abajo se lleve a cabo",
+        "height": 1103.3215882059574,
+        "width": 1435.900665847744
+      },
+      "id": "31de88d9-00a8-4cec-b161-9f7a170d9c8c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        368,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "product",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {}
+      },
+      "id": "358eab7a-d547-446c-baa2-bd633e777ab8",
+      "name": "Shopify",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [
+        720,
+        1328
+      ],
+      "executeOnce": false,
+      "alwaysOutputData": false,
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "cWKYISsbg6U27WzU",
+          "name": "Shopify Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://merchant-api.market.correos.es/v1/products",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "4ebacb7a-ca8a-48f6-a963-7c0595139d90",
+      "name": "Crear productos Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        1328
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "O1SIf3x50e43Hsoi",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"model\": \"{{ $json.title }}\",\n  \"shippingtypecode\": \"PA-0-2\",\n  \"weight\": \"{{ $json.variants[0].weight }}\",\n  \"categoryid\": 55,\n  \"brandid\": 42,\n  \"sku\": \"{{ $json.variants[0].sku }}\",\n  \"barcode\": \"\",\n  \"manufactureritemcode\": \"AZ0123456789\",\n  \"recommendedSalesPrice\": \"{{ $json.variants[0].price }}\",\n  \"description\": \"{{ $json.body_html.replace(/<[^>]*>/g, '').replace(/\\n/g, '') }}\",\n  \"tags\": \"{{ $json.tags }}\",\n  \"productResourceUrl\": [\n    {\n      \"url\": \"{{ $json.image.src.split('?')[0] }}\",\n      \"alttext\": \"{{ $json.image.alt || '' }}\",\n      \"isdefault\": false,\n      \"sortorder\": 0\n    }\n  ],\n  \"productVariants\": {{ JSON.stringify($json.variants.map((v, i) => ({\n    [`variantTypeId${i+1}`]: v.id = i,\n    ...$json.options.reduce((acc, o, j) => ({...acc, [`type${j+1}`]: v[`option${j+1}`] || ''}), {}),\n    sku: v.sku,\n    barcode: v.barcode || '',\n    sortorder: v.position,\n    weight: v.weight,\n    isactive: v.inventory_policy !== 'deny'\n  }))) }},\n  \"merchantListing\": {\n    \"price\": {{ $json.variants[0].price }},\n    \"valueaddedtax\": 21,\n    \"qty\": 10000,\n    \"expectedshipment\": 3,\n    \"status\": {{ $json.status == \"active\" ? true : false }}\n  }\n}",
+        "options": {}
+      },
+      "id": "701210ed-a257-4ccc-b1a4-6b234710ddca",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        1328
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "a9af876a-a5dc-4a0e-b529-d47bcef62f82",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1072,
+        1328
+      ],
+      "alwaysOutputData": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "5c5df0f0-6131-4ccd-89b4-76abdb8b786a",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        1328
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Se ejecuta cada x tiempo",
+        "height": 306.0546742214888,
+        "width": 1435.900665847744,
+        "color": 4
+      },
+      "id": "3eb914ec-0317-401b-a4fa-f88f715d9a9e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        368,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://merchant-api.market.correos.es/v1/categories?page=0&size=1000",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "5364ef17-1967-4c1f-aac9-cad21dcdb3a3",
+      "name": "Categorias Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2064,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://merchant-api.market.correos.es/v1/brands?page=0&size=1000",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "21539f4e-9569-4955-92a3-976d92caf21a",
+      "name": "Marcas Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2064,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://merchant-api.market.correos.es/v1/merchants/listing?page=0&size=1000",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "5075a768-0eb8-4f5e-ac2f-92f7ef456ae5",
+      "name": "Productos/vendedor Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2064,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://merchant-api.market.correos.es/v1/products?page=0&size=1000",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "61d1981b-9e91-4533-b4c9-4592ddd7e4e6",
+      "name": "Listado productos Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2064,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## API de Correos Market ya configurada",
+        "height": 997.7944702325823,
+        "width": 476.8254792588913
+      },
+      "id": "04deacee-fc9e-49d2-97ca-b6e613614798",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        80
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Shopify1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear productos Merchant1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Crear productos Merchant1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido creado": {
+      "main": [
+        [
+          {
+            "node": "Shopify1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nuevo producto": {
+      "main": [
+        [
+          {
+            "node": "Shopify1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Producto eliminado": {
+      "main": [
+        [
+          {
+            "node": "Shopify1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Producto actualizado": {
+      "main": [
+        [
+          {
+            "node": "Shopify1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido cancelado": {
+      "main": [
+        [
+          {
+            "node": "Shopify1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido actualizado": {
+      "main": [
+        [
+          {
+            "node": "Shopify1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopify": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear productos Merchant": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Crear productos Merchant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Shopify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "214dac78-e7f7-40ed-ae73-58d4504ed824",
+  "meta": {
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "F42psPfnkUN9AdDv",
+  "tags": []
+}
