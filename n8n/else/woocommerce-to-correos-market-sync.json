@@ -1,0 +1,534 @@
+{
+  "name": "WooCommerce to Correos Market",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "572ddf88-aa11-4565-ac67-3c0508ec0c88",
+      "name": "Schedule Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        1664
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://merchant-api.market.correos.es/v1/products",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "c413ba69-dd27-4758-80d6-a04e03acb813",
+      "name": "Crear productos Merchant3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2368,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"model\": \"{{ $json.name }}\",\n  \"shippingtypecode\": \"PA-0-2\",\n  \"weight\": {{ $json.weight == \"\" ? 0 : $json.weight}},\n  \"categoryid\": 42,\n  \"brandid\": 42,\n  \"sku\": \"{{ $json.sku }}\",\n  \"barcode\": \"\",\n  \"manufactureritemcode\": \"AZ0123456789\",\n  \"recommendedSalesPrice\": {{ $json.price }},\n  \"description\": \"{{ $json.description.removeTags().replaceAll(\"\\n\", \" \") }}\",\n  \"tags\": \"{{ $json.tags }}\",\n  \"productResourceUrl\": [\n    {\n      \"url\": \"{{ $json.images[0].src }}\",\n      \"alttext\": \"{{ $json.images[0].alt }}\",\n      \"isdefault\": false,\n      \"sortorder\": 0\n    }\n  ],\n  \"productVariants\": [\n    {\n      \"variantTypeId1\": {{ $json.attributes[0].id }},\n      \"variantTypeId2\": {{ $json.attributes[0].id }},\n      \"type1\": \"{{ $json.attributes[0].name }}\",\n      \"type2\": \"{{ $json.attributes[1].name }}\",\n      \"sku\": \"{{ $json.sku }}\",\n      \"barcode\": \"\",\n      \"sortorder\": 0,\n      \"weight\": {{ $json.weight == \"\" ? 0 : $json.weight}},\n      \"isactive\": {{ $json.catalog_visibility == \"visible\" ? \"true\" : \"false\" }}\n    }\n  ],\n  \"merchantListing\": {\n    \"price\": {{ $json.price }},\n    \"valueaddedtax\": 21,\n    \"qty\": 10000,\n    \"expectedshipment\": 3,\n    \"status\": {{ $json.catalog_visibility == \"visible\" ? \"true\" : \"false\" }}\n  }\n}",
+        "options": {}
+      },
+      "id": "21f6f14f-1d2c-46e1-a212-d10b2ed57e07",
+      "name": "Edit Fields3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2160,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "700d05f1-9e8c-432a-a169-3b6d539df119",
+      "name": "Loop Over Items3",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1952,
+        944
+      ],
+      "alwaysOutputData": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "content": "## Se ejecuta cada x tiempo",
+        "height": 306.0546742214888,
+        "width": 1435.900665847744,
+        "color": 4
+      },
+      "id": "ca11b507-1017-4bf5-8c56-44718d9baae1",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        1584
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Se ejecuta cuando alguna de las acciones de abajo se lleve a cabo",
+        "height": 1103.3215882059574,
+        "width": 1435.900665847744
+      },
+      "id": "241e130c-1f17-4c53-af19-6f35f21ab4e4",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 100,
+        "options": {}
+      },
+      "id": "cdcac24a-872c-4f61-b54f-1ad52ca4b785",
+      "name": "WooCommerce",
+      "type": "n8n-nodes-base.wooCommerce",
+      "typeVersion": 1,
+      "position": [
+        1728,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "event": "order.created"
+      },
+      "id": "b5c1306b-afe0-4ad4-ac32-cc0253863f40",
+      "name": "Pedido nuevo",
+      "type": "n8n-nodes-base.wooCommerceTrigger",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        560
+      ],
+      "webhookId": "89154880-b77d-42bf-9900-24fa046dc98e"
+    },
+    {
+      "parameters": {
+        "event": "order.deleted"
+      },
+      "id": "c968761f-1005-49fa-9ab5-a2edb92dccc3",
+      "name": "Pedido borrado",
+      "type": "n8n-nodes-base.wooCommerceTrigger",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        704
+      ],
+      "webhookId": "89154880-b77d-42bf-9900-24fa046dc98e"
+    },
+    {
+      "parameters": {
+        "event": "product.created"
+      },
+      "id": "9367d3a2-8b1b-4866-bedf-b196d88a42af",
+      "name": "Producto creado",
+      "type": "n8n-nodes-base.wooCommerceTrigger",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        992
+      ],
+      "webhookId": "89154880-b77d-42bf-9900-24fa046dc98e"
+    },
+    {
+      "parameters": {
+        "event": "order.updated"
+      },
+      "id": "8ac16375-a351-41b7-8d41-414f3c756c95",
+      "name": "Pedido actualizado WP",
+      "type": "n8n-nodes-base.wooCommerceTrigger",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        848
+      ],
+      "webhookId": "89154880-b77d-42bf-9900-24fa046dc98e"
+    },
+    {
+      "parameters": {
+        "event": "product.deleted"
+      },
+      "id": "bf522dd5-11ce-4040-9295-1f486b7211c0",
+      "name": "Producto borrado",
+      "type": "n8n-nodes-base.wooCommerceTrigger",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        1120
+      ],
+      "webhookId": "89154880-b77d-42bf-9900-24fa046dc98e"
+    },
+    {
+      "parameters": {
+        "event": "product.updated"
+      },
+      "id": "3f5ce5fa-15bd-4e77-9295-20b7776215b1",
+      "name": "Producto actualizado2",
+      "type": "n8n-nodes-base.wooCommerceTrigger",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        1264
+      ],
+      "webhookId": "89154880-b77d-42bf-9900-24fa046dc98e"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://merchant-api.market.correos.es/v1/products",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "82a63251-9059-4b52-a37e-dc839b2323de",
+      "name": "Crear productos Merchant4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2160,
+        1664
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "O1SIf3x50e43Hsoi",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"model\": \"{{ $json.name }}\",\n  \"shippingtypecode\": \"PA-0-2\",\n  \"weight\": {{ $json.weight == \"\" ? 0 : $json.weight}},\n  \"categoryid\": 42,\n  \"brandid\": 42,\n  \"sku\": \"{{ $json.sku }}\",\n  \"barcode\": \"\",\n  \"manufactureritemcode\": \"AZ0123456789\",\n  \"recommendedSalesPrice\": {{ $json.price }},\n  \"description\": \"{{ $json.description.removeTags().replaceAll(\"\\n\", \" \") }}\",\n  \"tags\": \"{{ $json.tags }}\",\n  \"productResourceUrl\": [\n    {\n      \"url\": \"{{ $json.images[0].src }}\",\n      \"alttext\": \"{{ $json.images[0].alt }}\",\n      \"isdefault\": false,\n      \"sortorder\": 0\n    }\n  ],\n  \"productVariants\": [\n    {\n      \"variantTypeId1\": {{ $json.attributes[0].id }},\n      \"variantTypeId2\": {{ $json.attributes[0].id }},\n      \"type1\": \"{{ $json.attributes[0].name }}\",\n      \"type2\": \"{{ $json.attributes[1].name }}\",\n      \"sku\": \"{{ $json.sku }}\",\n      \"barcode\": \"\",\n      \"sortorder\": 0,\n      \"weight\": {{ $json.weight == \"\" ? 0 : $json.weight}},\n      \"isactive\": {{ $json.catalog_visibility == \"visible\" ? \"true\" : \"false\" }}\n    }\n  ],\n  \"merchantListing\": {\n    \"price\": {{ $json.price }},\n    \"valueaddedtax\": 21,\n    \"qty\": 10000,\n    \"expectedshipment\": 3,\n    \"status\": {{ $json.catalog_visibility == \"visible\" ? \"true\" : \"false\" }}\n  }\n}",
+        "options": {}
+      },
+      "id": "c6301e76-2035-4ad2-bfa5-0e3650165310",
+      "name": "Edit Fields4",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1968,
+        1664
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "cf08fb17-251c-48c2-94d2-dca8434ffab8",
+      "name": "Loop Over Items4",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1744,
+        1664
+      ],
+      "alwaysOutputData": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "options": {}
+      },
+      "id": "cbf497bb-ea29-4b9b-9cd7-18cfbb8f0562",
+      "name": "WooCommerce1",
+      "type": "n8n-nodes-base.wooCommerce",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        1664
+      ],
+      "credentials": {
+        "wooCommerceApi": {
+          "id": "mxOr1kvstaqPojTw",
+          "name": "WooCommerce account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://merchant-api.market.correos.es/v1/categories?page=0&size=1000",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "a9f272b3-43ef-490f-8c07-b1a01db4a7d9",
+      "name": "Categorias Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2960,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://merchant-api.market.correos.es/v1/brands?page=0&size=1000",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "fcdd6ad6-2442-4d04-97e6-275afa42a2bb",
+      "name": "Marcas Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2960,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://merchant-api.market.correos.es/v1/merchants/listing?page=0&size=1000",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "fd51b216-aba9-4fe6-8eba-0ea26acc3ccf",
+      "name": "Productos/vendedor Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2960,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://merchant-api.market.correos.es/v1/products?page=0&size=1000",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "7f39bdc6-56bc-45cf-98a2-016ad145ff8a",
+      "name": "Listado productos Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2960,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## API de Correos Market ya configurada",
+        "height": 997.7944702325823,
+        "width": 476.8254792588913
+      },
+      "id": "75c81962-778a-4946-b2b7-fd7c3d752580",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2784,
+        464
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger1": {
+      "main": [
+        []
+      ]
+    },
+    "Crear productos Merchant3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Crear productos Merchant3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WooCommerce": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido nuevo": {
+      "main": [
+        [
+          {
+            "node": "WooCommerce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido borrado": {
+      "main": [
+        [
+          {
+            "node": "WooCommerce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Producto creado": {
+      "main": [
+        [
+          {
+            "node": "WooCommerce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedido actualizado WP": {
+      "main": [
+        [
+          {
+            "node": "WooCommerce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Producto borrado": {
+      "main": [
+        [
+          {
+            "node": "WooCommerce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Producto actualizado2": {
+      "main": [
+        [
+          {
+            "node": "WooCommerce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear productos Merchant4": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Crear productos Merchant4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items4": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WooCommerce1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b20ec434-0f2f-45ec-a2e3-846a04b9cfb8",
+  "meta": {
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "GWtNGjJcgyt54tR9",
+  "tags": []
+}

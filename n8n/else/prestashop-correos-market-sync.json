@@ -1,0 +1,246 @@
+{
+  "name": "PrestaShop to Correos Market",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "fc62fc67-bee9-4097-b27d-2abf9d2b2de3",
+      "name": "Schedule Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://correosps.civersia.com/api/products",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "output_format",
+              "value": "JSON"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "77ab1761-910c-40eb-a64e-f134ca812660",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1744,
+        128
+      ],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "QyI23VRfuY5kKas1",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "products",
+        "options": {}
+      },
+      "id": "1ef88255-ad45-4ca6-93af-e16e84c7a31f",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1968,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a277d710-3605-4484-a065-531a153307a1",
+      "name": "Loop Over Items2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2192,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://correosps.civersia.com/api/products/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "output_format",
+              "value": "JSON"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5412c920-bef1-42e7-96f7-23a1de867ddb",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2400,
+        128
+      ],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "QyI23VRfuY5kKas1",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"model\": \"{{ $json.product.name }}\",\n  \"shippingtypecode\": \"PA-0-2\",\n  \"weight\": {{ $json.product.weight == 0 ? 0 : $json.product.weight }},\n  \"categoryid\": 55,\n  \"brandid\": 42,\n  \"sku\": \"{{ $json.product.reference }}\",\n  \"barcode\": \"\",\n  \"manufactureritemcode\": \"AZ0123456789\",\n  \"recommendedSalesPrice\": {{ $json.product.price.toNumber() }},\n  \"description\": \"{{ $json.product.description.removeTags().replaceAll(\"\\n\", \" \") }}\",\n  \"tags\": \"\",\n  \"productResourceUrl\": [\n    {\n      \"url\": \"{{ $('HTTP Request1').params.url.replaceAll(\"products/\",\"\").replaceAll(\"{\",\"\").replaceAll(\"}\",\"\").replaceAll(\"=\", \"\").replaceAll(\"$json.id\", \"\").replaceAll(\"/api\", \"\").replaceAll(\" \", \"\") }}{{ $json.product.id }}-large_default/{{ $json.product.link_rewrite }}.jpg\",\n      \"alttext\": \"\",\n      \"isdefault\": false,\n      \"sortorder\": 0\n    }\n  ],\n  \"productVariants\": [\n    {\n      \"variantTypeId1\": 1,\n      \"variantTypeId2\": 1,\n      \"type1\": \"\",\n      \"type2\": \"\",\n      \"sku\": \"\",\n      \"barcode\": \"\",\n      \"sortorder\": 0,\n      \"weight\": {{ $json.product.weight == \"\" ? 0 : $json.product.weight}},\n      \"isactive\": {{ $json.product.active == 1 ? \"true\" : \"false\" }}\n    }\n  ],\n  \"merchantListing\": {\n    \"price\": {{ $json.product.price.toNumber() }},\n    \"valueaddedtax\": 21,\n    \"qty\": 10000,\n    \"expectedshipment\": 3,\n    \"status\": {{ $json.product.active == 1 ? \"true\" : \"false\" }}\n  }\n}",
+        "options": {}
+      },
+      "id": "27cfe530-ec43-4c30-851c-30e6d951b04f",
+      "name": "Edit Fields6",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2592,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://merchant-api.market.correos.es/v1/products",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "5671a20d-9cb2-498e-8114-aba57e9e272a",
+      "name": "Crear productos Merchant6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2832,
+        128
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "O1SIf3x50e43Hsoi",
+          "name": "Header Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Crear productos Merchant6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear productos Merchant6": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fc6013d9-8e38-44b2-9e30-1e71e89ad6a4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "lBWAwROwLbXP8NJM",
+  "tags": []
+}
