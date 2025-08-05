@@ -1,0 +1,416 @@
+{
+  "name": "WooCommerce to Merchant Center",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "224afb74-c3db-4564-95f4-8c11b652fe17",
+      "name": "Schedule Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        1664
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "06364d74-7447-4d89-b583-39f31ebf9d2d",
+      "name": "Loop Over Items4",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1760,
+        1664
+      ],
+      "alwaysOutputData": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "options": {}
+      },
+      "id": "9f1c2973-de23-4c4d-835c-793381e96a42",
+      "name": "WooCommerce1",
+      "type": "n8n-nodes-base.wooCommerce",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        1664
+      ],
+      "credentials": {
+        "wooCommerceApi": {
+          "id": "mxOr1kvstaqPojTw",
+          "name": "WooCommerce account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 0.5
+      },
+      "id": "95e6c9ad-3bd3-49a5-b31a-b10b68d7aa54",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1968,
+        1840
+      ],
+      "webhookId": "0e030175-76db-49d2-94b8-de1de5cd39c3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://shoppingcontent.googleapis.com/content/v2.1/5446546415/products",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "62b69421-46da-404b-bdf3-409efd7a88b0",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3104,
+        1648
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "HkKEtZftaqLTu6It",
+          "name": "no tocar, gracias"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "mode": "each",
+        "options": {}
+      },
+      "id": "ab67b9d2-f5f0-4cb0-9872-c3b0cdcbd0b7",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2848,
+        1648
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  if (item.json.price && item.json.price.value) {\n    \n    const priceValue = parseFloat(item.json.price.value).toFixed(2);\n    \n    item.json.price = {\n      value: priceValue,\n      currency: item.json.price.currency\n    };\n  }\n  return item;\n});"
+      },
+      "id": "322f211a-80b8-4fbe-92d5-d99228190cbd",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2544,
+        1648
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "1978d4f9-068a-48b1-9ee1-f1171c1ddc0c",
+              "leftValue": "={{ $json.price.value }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7cea17bc-1ae5-49b2-9b41-371475a38b7d",
+      "name": "Filter1",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        2288,
+        1648
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "58417cb4-af4b-453d-a8d4-f4c85529aaf3",
+              "name": "offerId",
+              "value": "= {{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "2aad1243-5d8b-434c-8857-5f03cce53af6",
+              "name": "title",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "8d2a2e80-5735-4a00-8452-aa296f7af386",
+              "name": "description",
+              "value": "={{ $json.description }}",
+              "type": "string"
+            },
+            {
+              "id": "8a481788-b1fb-4ae0-9ab7-6133b1e7fa32",
+              "name": "link",
+              "value": "={{ $json.images[0].src }}",
+              "type": "string"
+            },
+            {
+              "id": "9633cc9c-6f01-4db1-8980-f5bba3effe27",
+              "name": "imageLink",
+              "value": "={{ $json.images[0].src }}",
+              "type": "string"
+            },
+            {
+              "id": "da53d5c8-b8fc-4d62-94ed-9b3e8ff13a93",
+              "name": "contentLanguage",
+              "value": "es",
+              "type": "string"
+            },
+            {
+              "id": "94e6a531-6f89-40ba-a77f-1a126e075006",
+              "name": "targetCountry",
+              "value": "=US",
+              "type": "string"
+            },
+            {
+              "id": "15f371a7-707b-40c6-a9dc-8674b2fe800d",
+              "name": "channel",
+              "value": "online",
+              "type": "string"
+            },
+            {
+              "id": "da3e6270-0c89-4cfe-ac2b-da9b89552baf",
+              "name": "price",
+              "value": "={\n\"value\": \"{{ $json.price }}\",\n\"currency\": \"EUR\"\n}",
+              "type": "object"
+            },
+            {
+              "id": "27688a9b-5083-4e8a-a158-8cce8c48ea85",
+              "name": "availability",
+              "value": "in stock",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5d86bb36-b1bd-45c9-9f38-dcb6d8545698",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2032,
+        1648
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n\n}\n",
+        "includeOtherFields": "={{ $json.name }}",
+        "include": "selected",
+        "includeFields": "name, price",
+        "options": {}
+      },
+      "id": "884d2890-2be8-4ead-9515-a76256be2047",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1792,
+        1408
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Basic Procedure\n",
+        "height": 799.3658812627673,
+        "width": 2214.92612034298,
+        "color": 6
+      },
+      "id": "1f781ccf-b63d-4db4-8290-9b52c054380e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        1312
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://shoppingcontent.googleapis.com/content/v2.1/5446546415/products",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "options": {}
+      },
+      "id": "e92433e7-f6af-4030-8332-30b6d410546f",
+      "name": "test de conexión con GM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1312,
+        1424
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "HkKEtZftaqLTu6It",
+          "name": "no tocar, gracias"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Loop Over Items4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WooCommerce1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "WooCommerce1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "99cde91d-4f78-4699-b03e-90ad3ae4736d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "Ldq1NdmhI7I1ccLk",
+  "tags": [
+    {
+      "createdAt": "2024-10-03T09:49:47.828Z",
+      "updatedAt": "2024-10-03T09:49:47.828Z",
+      "id": "gGTJlMaTGEjoTVNf",
+      "name": "MMProject"
+    }
+  ]
+}
