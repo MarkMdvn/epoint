@@ -1,0 +1,102 @@
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    const areaSocioUrl = "https://asesja.odoo.com/area-socios";
+    const serSocioUrl = "https://asesja.odoo.com/ser-socio";
+
+    const socioMenuItem = document.querySelector(`a[href="${areaSocioUrl}"]`);
+    const asociateMenuItem = document.querySelector(`a[href="${serSocioUrl}"]`);
+
+    if (!asociateMenuItem) {
+        return;
+    }
+
+    const asociateLi = asociateMenuItem.closest('li');
+    const socioLi = socioMenuItem ? socioMenuItem.closest('li') : null;
+
+    const updateMenuVisibility = (isSocio) => {
+        if (isSocio) {
+            if (socioLi) socioLi.style.setProperty('display', 'list-item', 'important');
+            if (asociateLi) asociateLi.style.setProperty('display', 'none', 'important');
+        } else {
+            if (socioLi) socioLi.style.setProperty('display', 'none', 'important');
+            if (asociateLi) asociateLi.style.setProperty('display', 'list-item', 'important');
+        }
+    };
+
+    const signInLink = document.querySelector('a[href="/web/login"]');
+    if (signInLink) {
+        updateMenuVisibility(false);
+        return;
+    }
+
+    if (socioLi) socioLi.style.setProperty('display', 'none', 'important');
+    if (asociateLi) asociateLi.style.setProperty('display', 'none', 'important');
+
+    fetch(areaSocioUrl, { method: 'HEAD', redirect: 'manual' })
+        .then(response => {
+            if (response.ok && response.type !== 'opaqueredirect') {
+                updateMenuVisibility(true);
+            } else {
+                updateMenuVisibility(false);
+            }
+        })
+        .catch(error => {
+            updateMenuVisibility(false);
+        });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    /**
+     * Función reutilizable para añadir un texto antes de un formulario de Odoo.
+     * Espera activamente a que el formulario exista en la página antes de actuar.
+     *
+     * @param {string} formSelector - El selector CSS del formulario (ej. '.oe_login_form').
+     * @param {string} textHTML - El contenido HTML del texto a añadir.
+     * @param {string} customClass - Una clase CSS única para el nuevo elemento de texto.
+     */
+    function addTextToOdooForm(formSelector, textHTML, customClass) {
+        const maxTries = 20; // Intentos máximos (5 segundos)
+        let currentTry = 0;
+
+        const formWatcher = setInterval(function() {
+            const formElement = document.querySelector(formSelector);
+
+            if (formElement) {
+                // ¡Encontrado! Detenemos el vigilante.
+                clearInterval(formWatcher);
+
+                // Si el texto no existe ya, lo creamos y lo insertamos.
+                if (!document.querySelector('.' + customClass)) {
+                    const textElement = document.createElement('p');
+                    textElement.className = 'text-center mb-4 mt-4 ' + customClass;
+                    textElement.innerHTML = textHTML;
+                    formElement.before(textElement);
+                }
+            } else {
+                currentTry++;
+                if (currentTry > maxTries) {
+                    clearInterval(formWatcher);
+                    console.error('Odoo Form Watcher: No se pudo encontrar el elemento ' + formSelector);
+                }
+            }
+        }, 250);
+    }
+
+    // Comprobamos en qué página estamos y llamamos a la función con los datos correctos.
+    const currentPage = window.location.pathname;
+
+    // --- LÓGICA PARA LA PÁGINA DE LOGIN ---
+    if (currentPage === '/web/login') {
+        const loginText = 'El primer paso para ser socio es <b>crear una cuenta</b>.<br>(Si ya eres socio o la creaste, simplemente inicia sesión)';
+        addTextToOdooForm('.oe_login_form', loginText, 'custom-login-text');
+    }
+    // --- LÓGICA PARA LA PÁGINA DE REGISTRO ---
+    else if (currentPage === '/web/signup') {
+        const signupText = 'Una vez tengas la cuenta creada, podrás <b>asociarte y disfrutar</b> de todas las ventajas.';
+        // Basado en tu HTML, el formulario de registro tiene la clase '.oe_signup_form'
+        addTextToOdooForm('.oe_signup_form', signupText, 'custom-signup-text');
+    }
+
+});
+</script>
