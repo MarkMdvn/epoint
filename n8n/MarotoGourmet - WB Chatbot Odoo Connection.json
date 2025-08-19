@@ -1,0 +1,3149 @@
+{
+  "name": "MarotoGourmet - WB Chatbot Odoo Connection",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "9416fb67-66eb-47a8-8a85-c0c9dc4a1e54",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        2208
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.public.category",
+        "operation": "getAll",
+        "limit": 3,
+        "options": {
+          "fieldsList": [
+            "name"
+          ]
+        }
+      },
+      "id": "d0f3a0fb-4396-42bd-bf58-e5f077211440",
+      "name": "Odoo",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        272,
+        2000
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "options": {}
+      },
+      "id": "74d97b80-aa2c-4c99-97b3-efa4ba14a1a3",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        2000
+      ]
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "7dfc46b9-694b-40ad-86c2-8746ddfef215",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        2000
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "mode": "each",
+        "options": {}
+      },
+      "id": "a10d29dd-9aed-4ef5-9d03-24c67daa1e59",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        2000
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4bee8037-be04-4ddc-b63e-6830e16968fb",
+      "name": "Respond to Webhook1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2240,
+        1968
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.template",
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {
+          "fieldsList": [
+            "name"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "name",
+              "operator": "like",
+              "value": "={{ $json.searchTerms }} "
+            }
+          ]
+        }
+      },
+      "id": "c9569272-98f6-4e18-a6b6-c1ac9a6992eb",
+      "name": "ind_prod_search_name",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        1536
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "output_items = []\n\nfor item_data_input in items:\n    item_to_return = {}\n    \n\n    for key, value in item_data_input.items():\n        if key != 'json': \n             item_to_return[key] = value\n\n\n    if 'json' in item_data_input and isinstance(item_data_input['json'], dict):\n        item_to_return['json'] = dict(item_data_input['json']) \n    else:\n        item_to_return['json'] = {}\n\n\n    try:\n\n        original_term = item_data_input['json']['body']['dynamicValue']\n    except (KeyError, TypeError) as e:\n        print(f\"Error: No se pudo encontrar 'json.body.dynamicValue' en el ítem. Detalle: {e}\")\n        item_to_return['json']['searchTerms'] = []\n        output_items.append(item_to_return)\n        continue\n\n    if not isinstance(original_term, str) or not original_term.strip():\n        print(f\"Log: original_term ('{original_term}') no es un string válido o está vacío.\")\n        item_to_return['json']['searchTerms'] = []\n        output_items.append(item_to_return)\n        continue\n\n    term = original_term.strip()\n    terms_set = set()\n\n    lower_case_term = term.lower()\n    terms_set.add(lower_case_term)\n    terms_set.add(term.upper())\n\n    if lower_case_term.endswith('s'):\n        singular_guess_s = lower_case_term[:-1]\n        if len(singular_guess_s) > 0:\n            terms_set.add(singular_guess_s)\n            terms_set.add(singular_guess_s.upper())\n\n        if lower_case_term.endswith('es'):\n            singular_guess_es = lower_case_term[:-2]\n            if len(singular_guess_es) > 0:\n                terms_set.add(singular_guess_es)\n                terms_set.add(singular_guess_es.toUpperCase())\n                if singular_guess_es.endswith('c'):\n                    singular_con_z = singular_guess_es[:-1] + 'z'\n                    terms_set.add(singular_con_z)\n                    terms_set.add(singular_con_z.toUpperCase())\n\n    if not lower_case_term.endswith('s'):\n        plural_guess_s = lower_case_term + 's'\n        terms_set.add(plural_guess_s)\n        terms_set.add(plural_guess_s.toUpperCase())\n\n        last_char = lower_case_term[-1:]\n        consonants_and_stressed_vowels = \"bcdfghjklmnpqrstvwxyzáéíóú\"\n\n        if last_char == 'z':\n            plural_guess_es_z = lower_case_term[:-1] + 'ces'\n            terms_set.add(plural_guess_es_z)\n            terms_set.add(plural_guess_es_z.toUpperCase())\n        elif last_char == 'y':\n            if len(lower_case_term) > 1 and lower_case_term[-2] in \"aeiouáéíóú\":\n                 plural_guess_es_y = lower_case_term + 'es'\n                 terms_set.add(plural_guess_es_y)\n                 terms_set.add(plural_guess_es_y.toUpperCase())\n        elif any(c == last_char for c in consonants_and_stressed_vowels):\n            plural_guess_es = lower_case_term + 'es'\n            terms_set.add(plural_guess_es)\n            terms_set.add(plural_guess_es.toUpperCase())\n    \n    search_terms_list = [t for t in list(terms_set) if t and len(t) > 0]\n    \n    item_to_return['json']['searchTerms'] = search_terms_list\n    print(f\"Log: searchTerms generados para '{original_term}': {item_to_return['json']['searchTerms']}\")\n    \n    output_items.append(item_to_return)\n\nreturn output_items"
+      },
+      "id": "60679d26-a12c-44e8-9ea3-59aad0848aa1",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "path": "aaab4a45-ded8-434d-b87a-c61695293b34",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e4d6c121-2f8e-4347-b771-2e1894a5b354",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        2000
+      ],
+      "webhookId": "aaab4a45-ded8-434d-b87a-c61695293b34"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "36fcf32c-8d82-45c7-a5c3-804e10971415",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1152,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "searchTerms",
+        "options": {}
+      },
+      "id": "9fbec078-e5df-4c09-80cb-b03eddd595b4",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        896,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.template",
+        "operation": "get",
+        "customResourceId": "={{ $json.id }}",
+        "options": {
+          "fieldsList": [
+            "name",
+            "list_price"
+          ]
+        }
+      },
+      "id": "53b8a525-76a5-453c-8ee8-842e4df17f34",
+      "name": "Odoo1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        1344
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": []
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "6373aa9b-bfb7-45e4-be9a-921c253a4d95",
+      "name": "ind_products_res",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1744,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "id",
+        "options": {}
+      },
+      "id": "b3341a1a-0005-47b4-af6d-383c1b6dfc73",
+      "name": "split_ind_prod",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        1296
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6fba6b65-0c93-45a5-9f0c-20dcd5bfc1b1",
+      "name": "Loop Over Items1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1952,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "options": {}
+      },
+      "id": "e072beca-275e-4dbf-904f-ecffc2790284",
+      "name": "Respond to Webhook2",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        1136
+      ]
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "55b1ff40-285b-4895-8e95-a60b159dc1c8",
+      "name": "searched_products_final",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2224,
+        1136
+      ]
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "response_data = {\n    \"products\": items  \n}\n\noutput = [{'json': response_data}]\n\nreturn output"
+      },
+      "id": "25178b56-5dff-43db-b854-8de9ce916dda",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        1136
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "mode": "each",
+        "options": {}
+      },
+      "id": "4e146050-b87c-4600-a5e8-e034e5352d83",
+      "name": "Convert to File1",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2656,
+        1136
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Búsqueda de producto individual",
+        "height": 748.942016775075,
+        "width": 3080.7791397385945,
+        "color": 5
+      },
+      "id": "076831ef-6164-4b6c-ac92-6327a52139e6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "75f6f0fe-bafe-4e52-8403-b0a011fb3153",
+      "name": "Respond to Webhook3",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2288,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "getAll",
+        "options": {
+          "fieldsList": [
+            "id",
+            "name"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "name",
+              "value": "={{ $json.query.order_id }}"
+            }
+          ]
+        }
+      },
+      "id": "c2fe46a0-1848-4296-97c1-a5b9d4287410",
+      "name": "get-order-id-by-name",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -352
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ff390fbe-5a69-4a18-8715-1c988012f0b1",
+              "name": "name",
+              "value": "={{ $('sales-info').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "b96abdf9-5db8-44f0-b542-75fd44dda34a",
+              "name": "partner_id[1]",
+              "value": "={{ $('sales-info').item.json.partner_id[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "1d56142e-b488-4709-ad5d-be969dd2ef82",
+              "name": "amount_total",
+              "value": "={{ $('sales-info').item.json.amount_total }}",
+              "type": "number"
+            },
+            {
+              "id": "33c93eb9-b9ab-4b69-b3cc-9841e314fc1b",
+              "name": "state",
+              "value": "={{ $('transfer-info').item.json.state }}",
+              "type": "string"
+            },
+            {
+              "id": "2edd2130-5aee-4488-99ff-592fb75d6248",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "0c510dd5-d149-498d-aa6f-ec8917808f1e",
+              "name": "quantity",
+              "value": "={{ $json.quantity }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2db79263-08fc-4aa9-8ab0-77f86c663f87",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1728,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "\nall_order_lines = []\n\n\nfor item_in_input in items:\n\n    all_order_lines.append(item_in_input.json)\n\n\nresponse_data_object = {\n    \"order\": all_order_lines\n}\n\n\noutput_to_next_node = [{'json': response_data_object}]\n\nreturn output_to_next_node\n"
+      },
+      "id": "19b04f99-4417-413e-93f0-cae395834128",
+      "name": "Code2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Búsqueda del pedido por número de confirmación\n\n",
+        "height": 334,
+        "width": 3063,
+        "color": 2
+      },
+      "id": "c8a41f9d-4589-4db3-93f6-f34aaeecea4f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -448
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.cartItems",
+        "options": {}
+      },
+      "id": "57c18974-bd4d-430a-bb1b-349445b49f7f",
+      "name": "Split Out1",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -864
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "2d4044d8-51ca-4fe8-8978-8ddbd007c389",
+      "name": "Loop Over Items2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        912,
+        -880
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.template",
+        "operation": "get",
+        "customResourceId": "={{ $json.id }}",
+        "options": {
+          "fieldsList": [
+            "name",
+            "list_price"
+          ]
+        }
+      },
+      "id": "c3386341-a483-40d4-9215-e989359e5897",
+      "name": "Odoo2",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -736
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d6925a29-d80c-4272-abcf-454b6b80b495",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "6cef964d-6a51-4b57-83e9-3c078fd7c097",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "a134f738-677a-4a0d-806d-4aa2c0b41fe5",
+              "name": "list_price",
+              "value": "={{ $json.list_price }}",
+              "type": "number"
+            },
+            {
+              "id": "e429ad7f-78fa-4ab6-8c87-772ddcc769d5",
+              "name": "quantity",
+              "value": "={{ $('Loop Over Items2').item.json.quantity }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cf39c8c7-346a-4157-8fe2-f3be06de5e3f",
+      "name": "Edit Fields2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1552,
+        -720
+      ]
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "54920d5f-2d66-4716-8167-dde571dfb9c0",
+      "name": "Edit Fields3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1232,
+        -976
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "bab25cdf-7b8d-4e96-890e-50ec1aa794f2",
+      "name": "Respond to Webhook4",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1792,
+        -976
+      ]
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "\noutput_data = {\n    \"final_products\": items  # 'items' aquí es tu array de productos de entrada\n}\n\n# Devolvemos una lista que contiene un solo ítem,\n# y ese ítem tiene la estructura {'json': output_data}.\nreturn [{'json': output_data}]"
+      },
+      "id": "7b628c34-6cf8-49a1-a902-165924c69eac",
+      "name": "Code3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        -976
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Búsqueda de los productos\n",
+        "height": 527.9118603847952,
+        "width": 1914.1067529260192,
+        "color": 6
+      },
+      "id": "e441e395-a465-4379-8105-6cf6a2bfb104",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -1040
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.orderItems ",
+        "options": {}
+      },
+      "id": "ffa85555-8de8-4e8a-a452-5e2c04bb7c85",
+      "name": "Split Out2",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        -1520
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "159e39d8-7736-4bc5-9f69-c9bce166b01e",
+              "name": "sales_order_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "c468c0b6-28ca-4a9d-a653-a41fc0f5b0b4",
+              "name": "contact_id",
+              "value": "={{ $('New Contact').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "b41335d7-c8d5-4ec0-a307-7fb3cfc52e2f",
+              "name": "",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "a6bc05ab-c8f9-46d3-8ed6-476f1b68ee0c",
+              "name": "body.orderItems",
+              "value": "={{ $('Webhook2').item.json.body.orderItems }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1c7da6d1-878e-4873-abc0-180939791d2b",
+      "name": "all-info",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        -1408
+      ]
+    },
+    {
+      "parameters": {
+        "contactName": "={{ $json.body.customerInfo.name.first }} {{ $json.body.customerInfo.name.last }}",
+        "additionalFields": {
+          "email": "={{ $json.body.customerInfo.email }}"
+        }
+      },
+      "id": "2e6c8a05-aa88-40ca-9bae-3d8c4ed43fe6",
+      "name": "New Contact",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        512,
+        -1408
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8de80950-3188-4c51-99b8-ab969937c335",
+      "name": "Loop Over Items3",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1440,
+        -1568
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('all-info').item.json.sales_order_id }}"
+            },
+            {
+              "fieldName": "product_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "={{ $('Loop Over Items3').item.json.quantity }}"
+            }
+          ]
+        }
+      },
+      "id": "865fb298-fe08-4569-af4b-e9d6434d663a",
+      "name": "Odoo5",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2064,
+        -1328
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.template",
+        "operation": "get",
+        "customResourceId": "={{ $json.id }}",
+        "options": {}
+      },
+      "id": "32292ce2-106a-453e-9f85-7448721b7e31",
+      "name": "Odoo4",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        -1376
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Creación del pedido\n",
+        "height": 486.74649826249754,
+        "width": 2864.7520616934294,
+        "color": 3
+      },
+      "id": "98ca9b72-6b90-4c38-894f-a1c9008fc1d1",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        -1616
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "bbfe2f33-af63-4757-ba80-dede38b8c61c",
+      "name": "Respond to Webhook5",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2640,
+        -1584
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a320218b-1612-4a83-9a71-cdce5d6773f6",
+              "name": "id",
+              "value": "={{ $('all-info').item.json.sales_order_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4674b46f-dc6f-49da-8d0b-179a23062634",
+      "name": "Edit Fields4",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1664,
+        -1600
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "partner_id",
+              "fieldValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "21e70ec7-e7c7-4d2c-924d-8a541cac58ba",
+      "name": "Sales Order1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        752,
+        -1408
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "get",
+        "customResourceId": "={{ $json.id }}",
+        "options": {}
+      },
+      "id": "d0071b8e-3d8b-434a-864d-c09238c83633",
+      "name": "Odoo6",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        -1600
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "85e6d35c-ba8d-4404-a3f1-f85105b86fcd",
+              "name": "display_name",
+              "value": "={{ $json.display_name }}",
+              "type": "string"
+            },
+            {
+              "id": "9c4ff1ab-5620-4d0a-b939-0e3c5b212469",
+              "name": "partner_invoice_id[1]",
+              "value": "={{ $json.partner_invoice_id[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "118e47ca-1ddd-410e-9728-c075f81b1235",
+              "name": "tax_totals.total_amount",
+              "value": "={{ $json.tax_totals.total_amount }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "82d3a90d-949a-4145-9326-7cc40819d1fd",
+      "name": "Edit Fields5",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2112,
+        -1600
+      ]
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# 'items' es la lista de entrada al nodo \"Code\".\n# En tu caso, 'items' será el array de diccionarios que representa\n# la información del pedido completado (o pedidos).\n# Ejemplo: items = [\n#   { \"display_name\": \"S00024\", \"partner_invoice_id\": [None, \"Mark Mordvin\"], ... },\n#   { \"display_name\": \"S00025\", \"partner_invoice_id\": [None, \"Jane Doe\"], ... }\n# ]\n# O si solo es un pedido, sería una lista con un solo diccionario:\n# items = [\n#   { \"display_name\": \"S00024\", \"partner_invoice_id\": [None, \"Mark Mordvin\"], ... }\n# ]\n\n\n# Creamos el objeto que queremos como salida.\n# Este objeto tendrá una clave \"OrderCompletedRes\" y su valor será el array de entrada.\nresponse_object = {\n    \"OrderCompletedRes\": items  # 'items' aquí es tu array de entrada\n}\n\n# El nodo \"Code\" en Python, en modo \"Run Once for All Items\", espera que\n# se devuelva una lista de diccionarios (ítems).\n# Como queremos que la *salida completa* del nodo sea este único objeto estructurado,\n# creamos una lista que contiene un solo ítem,\n# y ese ítem tiene la estructura {'json': response_object} para que n8n lo maneje bien.\noutput = [{'json': response_object}]\n\nreturn output"
+      },
+      "id": "a766409e-4bff-4bd1-8bfa-f621c066031a",
+      "name": "Code4",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2320,
+        -1600
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "8462d70b-d88e-44ca-a67e-178989283381",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ae9b8b18-6ed4-491a-99ab-2224e84864dc",
+      "name": "Webhook2",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        208,
+        -1360
+      ],
+      "webhookId": "8462d70b-d88e-44ca-a67e-178989283381"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "726d76cc-cae5-4504-b48a-773aaa3bf5de",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a0efc332-d3f6-4c8d-83fb-019bb825925d",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        208,
+        -848
+      ],
+      "webhookId": "726d76cc-cae5-4504-b48a-773aaa3bf5de"
+    },
+    {
+      "parameters": {
+        "path": "3015bf4e-3d5f-4ba2-a2f9-360a789a7ccf",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1d7c48ce-b311-441b-a443-396a38df29d1",
+      "name": "ind_prod_search",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        384,
+        1376
+      ],
+      "webhookId": "3015bf4e-3d5f-4ba2-a2f9-360a789a7ccf"
+    },
+    {
+      "parameters": {
+        "content": "## Búsqueda del pedido por correo electrónico\n\n\n\n",
+        "height": 568,
+        "width": 1938,
+        "color": 2
+      },
+      "id": "d1739fad-201c-49b7-b817-5b016a386795",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b4174d07-c4ba-4e49-b3c3-5e6ccae3ecab",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "540cbda3-eba7-4165-b1e9-01857ae406cd",
+      "name": "Edit Fields6",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "\nall_order_lines = []\n\nfor item_in_input in items:\n\n    all_order_lines.append(item_in_input.json)\n\n\nresponse_data_object = {\n    \"order\": all_order_lines\n}\n\n\noutput_to_next_node = [{'json': response_data_object}]\n\nreturn output_to_next_node\n"
+      },
+      "id": "79bbdbbf-f5c7-4cd1-bb3a-403ca3463893",
+      "name": "Code5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "da82be3c-dd2f-44d9-a158-354030c45d91",
+      "name": "Respond to Webhook6",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1792,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "res.partner",
+        "operation": "getAll",
+        "options": {
+          "fieldsList": [
+            "id"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "phone",
+              "value": "={{ $json.phoneFormattingOutcome.formattedString }}"
+            }
+          ]
+        }
+      },
+      "id": "7db74b4d-2f63-4185-a405-a774d733bc14",
+      "name": "get-contact-id-by-phone-number",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        608,
+        16
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function formatPhoneNumberElevenDigitsToObject(phoneNumberString) {\n  if (typeof phoneNumberString !== 'string' || phoneNumberString.length !== 11 || !/^\\d{11}$/.test(phoneNumberString)) {\n    return {\n      error: true,\n      message: \"Error: El número debe ser un string de 11 dígitos numéricos (2 para prefijo país + 9 para número).\",\n      originalInput: phoneNumberString\n    };\n  }\n\n  const countryCodeDigits = phoneNumberString.substring(0, 2);\n  const nationalPartRaw = phoneNumberString.substring(2);\n\n  const p1 = nationalPartRaw.substring(0, 3);\n  const p2 = nationalPartRaw.substring(3, 5);\n  const p3 = nationalPartRaw.substring(5, 7);\n  const p4 = nationalPartRaw.substring(7, 9);\n\n  return {\n    error: false,\n    originalInput: phoneNumberString,\n    countryCodeWithPlus: `+${countryCodeDigits}`,\n    nationalNumberRaw: nationalPartRaw,\n    segments: [p1, p2, p3, p4],\n    formattedString: `+${countryCodeDigits} ${p1} ${p2} ${p3} ${p4}`\n  };\n}\n\nlet inputPhoneNumber = null;\n\nif (items && Array.isArray(items) && items.length > 0) {\n  const firstItem = items[0];\n  if (firstItem && typeof firstItem.json === 'object' && firstItem.json !== null) {\n    const jsonData = firstItem.json;\n    if (typeof jsonData.query === 'object' && jsonData.query !== null) {\n      inputPhoneNumber = jsonData.query.telefono;\n    }\n  }\n}\n\nconst phoneProcessingResult = formatPhoneNumberElevenDigitsToObject(inputPhoneNumber);\n\nconst outputJsonContent = {\n  phoneFormattingOutcome: phoneProcessingResult\n};\n\nconst finalNodeOutput = [{'json': outputJsonContent}];\n\nreturn finalNodeOutput;"
+      },
+      "id": "efc2fc1c-ffa2-46bb-9d1a-fa8ade4fc842",
+      "name": "Code6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "getAll",
+        "options": {
+          "fieldsList": []
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "partner_id",
+              "operator": "like",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "df5fad80-bcb8-44d0-9138-a7d42281a178",
+      "name": "get-sales-by-res.user-id",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        832,
+        16
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {},
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "95a35db5-f848-457d-98dc-53c5461e6294",
+      "name": "Odoo7",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        208
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "38106fbc-cbfc-4cd4-a738-30a6c53b0099",
+      "name": "Loop Over Items4",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1248,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a9b39b1b-26cc-43bd-974a-df7211a10f6c",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "de19db3f-9bf5-4891-8f6e-142d9ea822fc",
+              "name": "partner_id",
+              "value": "={{ $json.partner_id }}",
+              "type": "array"
+            },
+            {
+              "id": "957b5445-357e-4532-abb9-a34995b6723c",
+              "name": "create_date",
+              "value": "={{ $json.create_date }}",
+              "type": "string"
+            },
+            {
+              "id": "d15d70a9-5f15-4d54-9075-a64ea82d9a38",
+              "name": "tax_totals.total_amount",
+              "value": "={{ $json.tax_totals.total_amount }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "38cb4e35-d2b2-4b45-9f67-12d1ea3f012a",
+      "name": "Edit Fields7",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b4174d07-c4ba-4e49-b3c3-5e6ccae3ecab",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "89c6e4ba-c57c-4107-882e-ce20a3e8f6b2",
+      "name": "Edit Fields8",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "\nall_order_lines = []\n\nfor item_in_input in items:\n\n    all_order_lines.append(item_in_input.json)\n\n\nresponse_data_object = {\n    \"order\": all_order_lines\n}\n\n\noutput_to_next_node = [{'json': response_data_object}]\n\nreturn output_to_next_node\n"
+      },
+      "id": "8ce9cf2e-7981-45dd-9991-8df37c1eab8e",
+      "name": "Code7",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f33bc85d-c2e3-4c0e-8018-a5b6d1a3bf5c",
+      "name": "Respond to Webhook7",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1776,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "getAll",
+        "options": {
+          "fieldsList": []
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "partner_id",
+              "operator": "like",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "760c2689-4365-4505-9094-709b38826b6a",
+      "name": "get-sales-by-res.user-id1",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        800,
+        608
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {},
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "4092d118-77c5-4f7a-a082-e06b95dc74cd",
+      "name": "Odoo8",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        784
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "7dff50b9-8333-4bfc-a110-15717ef972a7",
+      "name": "Loop Over Items5",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1312,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a9b39b1b-26cc-43bd-974a-df7211a10f6c",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "de19db3f-9bf5-4891-8f6e-142d9ea822fc",
+              "name": "partner_id",
+              "value": "={{ $json.partner_id }}",
+              "type": "array"
+            },
+            {
+              "id": "957b5445-357e-4532-abb9-a34995b6723c",
+              "name": "create_date",
+              "value": "={{ $json.create_date }}",
+              "type": "string"
+            },
+            {
+              "id": "d15d70a9-5f15-4d54-9075-a64ea82d9a38",
+              "name": "tax_totals.total_amount",
+              "value": "={{ $json.tax_totals.total_amount }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fd955363-a230-4207-96f6-f38cacf2dd76",
+      "name": "Edit Fields9",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1680,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Búsqueda del pedido por número de teléfono\n\n\n",
+        "height": 536,
+        "width": 3069,
+        "color": 2
+      },
+      "id": "9f8af158-7b93-4294-9342-3d75892ef6ea",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "res.partner",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {
+          "fieldsList": [
+            "id"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "email",
+              "value": "={{ $json.query.email }}"
+            }
+          ]
+        }
+      },
+      "id": "915554fe-661c-4a6c-8f56-78e21efb4672",
+      "name": "get-contact-id-by-email",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        512,
+        608
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "b5ef46a6-5d3e-4af5-9238-8483fd3d66a5",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "179516c0-aaa4-4ae5-8c17-1f64583b094d",
+      "name": "order-by-email",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        160,
+        576
+      ],
+      "webhookId": "b5ef46a6-5d3e-4af5-9238-8483fd3d66a5"
+    },
+    {
+      "parameters": {
+        "path": "ef6cec39-3d34-4ec5-9b7d-8ed7db0ca5de",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "7bb469c6-7598-424e-9d5b-3942930024f9",
+      "name": "Webhook3",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        192,
+        16
+      ],
+      "webhookId": "ef6cec39-3d34-4ec5-9b7d-8ed7db0ca5de"
+    },
+    {
+      "parameters": {
+        "path": "f34d0103-fde2-4ba4-9efd-fcf37ec39476",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "2bf3a50f-375e-422a-a6b6-33440b005057",
+      "name": "Orders",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        208,
+        -352
+      ],
+      "webhookId": "f34d0103-fde2-4ba4-9efd-fcf37ec39476"
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "stock.picking",
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {},
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "origin",
+              "value": "={{ $json.name }}"
+            }
+          ]
+        }
+      },
+      "id": "6f0362de-2abf-4a17-a4f4-48aa0eeafdb9",
+      "name": "transfer-info",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        752,
+        -352
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {},
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "id",
+              "value": "={{ $('get-order-id-by-name').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "e7a2a908-b069-4d4c-8156-a10ca56c522e",
+      "name": "sales-info",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        960,
+        -352
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "0204350a-320e-44cf-aa1f-613bb86e7b65",
+      "name": "Loop Over Items6",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1376,
+        -384
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "order_line",
+        "options": {}
+      },
+      "id": "e75b2cf0-318f-4fa9-8fb7-17d728751b8e",
+      "name": "Split Out3",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        -352
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "stock.move",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {
+          "fieldsList": [
+            "name",
+            "quantity"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "id",
+              "value": "={{ $json.order_line }}"
+            }
+          ]
+        }
+      },
+      "id": "3d00d1a1-a664-47fd-8669-671efbeffa15",
+      "name": "Odoo3",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        -304
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.template",
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {
+          "fieldsList": [
+            "display_name",
+            "list_price"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -2224
+      ],
+      "id": "dd467c7a-45f4-4a6f-a121-a419792eeccf",
+      "name": "Get many items",
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        960,
+        -2224
+      ],
+      "id": "d25e1947-99eb-47eb-b367-24fa40235a50",
+      "name": "Respond to Webhook8"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "\nall_order_lines = []\n\nfor item_in_input in items:\n\n    all_order_lines.append(item_in_input.json)\n\n\nresponse_data_object = {\n    \"order\": all_order_lines\n}\n\n\noutput_to_next_node = [{'json': response_data_object}]\n\nreturn output_to_next_node"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        -2224
+      ],
+      "id": "3981bd31-5303-48e9-aaad-e48b4e31a0b4",
+      "name": "Code8"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "508be52e-b6db-4f2d-991a-2350158ef4be",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -2224
+      ],
+      "id": "52a4ee07-ffc7-42e1-9a02-a32aa12ff3b0",
+      "name": "odoo_catalog",
+      "webhookId": "508be52e-b6db-4f2d-991a-2350158ef4be"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e77c5759-08e5-4b61-9344-aea7ab154656",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        192,
+        -1936
+      ],
+      "id": "f847d7cb-1536-4d8c-8cce-8b0a4cd12746",
+      "name": "Webhook4",
+      "webhookId": "e77c5759-08e5-4b61-9344-aea7ab154656"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4a943e14-dcdc-4edd-a317-98d9b4863f3d",
+              "name": "dynamicValue",
+              "value": "={{ $json.body.dynamicValue }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        -1952
+      ],
+      "id": "46527647-1f03-4fd5-953c-631219ea1440",
+      "name": "Edit Fields10"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Acceder a la variable de entrada que contiene el string JSON.\nconst jsonString = $input.first().json.dynamicValue;\n\n// 2. Usar JSON.parse() para convertir (limpiar) el string a un objeto JavaScript.\nconst cleanJson = JSON.parse(jsonString);\n\n// 3. Devolver el objeto limpio como salida del nodo.\nreturn cleanJson;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -1952
+      ],
+      "id": "61e6fdf0-a51b-43ed-af06-6a3cf21eea5c",
+      "name": "Code9"
+    },
+    {
+      "parameters": {
+        "jsCode": "function formatPhoneNumberElevenDigitsToObject(phoneNumberString) {\n  phoneNumberString = $input.first().json.user_phone_number\n  if (typeof phoneNumberString !== 'string' || phoneNumberString.length !== 11 || !/^\\d{11}$/.test(phoneNumberString)) {\n    return {\n      error: true,\n      message: \"Error: El número debe ser un string de 11 dígitos numéricos (2 para prefijo país + 9 para número).\",\n      originalInput: phoneNumberString\n    };\n  }\n\n  const countryCodeDigits = phoneNumberString.substring(0, 2);\n  const nationalPartRaw = phoneNumberString.substring(2);\n\n  const p1 = nationalPartRaw.substring(0, 3);\n  const p2 = nationalPartRaw.substring(3, 5);\n  const p3 = nationalPartRaw.substring(5, 7);\n  const p4 = nationalPartRaw.substring(7, 9);\n\n  return {\n    error: false,\n    originalInput: phoneNumberString,\n    countryCodeWithPlus: `+${countryCodeDigits}`,\n    nationalNumberRaw: nationalPartRaw,\n    segments: [p1, p2, p3, p4],\n    formattedString: `+${countryCodeDigits} ${p1} ${p2} ${p3} ${p4}`\n  };\n}\n\nlet inputPhoneNumber = null;\n\nif (items && Array.isArray(items) && items.length > 0) {\n  const firstItem = items[0];\n  if (firstItem && typeof firstItem.json === 'object' && firstItem.json !== null) {\n    const jsonData = firstItem.json;\n    if (typeof jsonData.query === 'object' && jsonData.query !== null) {\n      inputPhoneNumber = jsonData.query.telefono;\n    }\n  }\n}\n\nconst phoneProcessingResult = formatPhoneNumberElevenDigitsToObject(inputPhoneNumber);\n\nconst outputJsonContent = {\n  phoneFormattingOutcome: phoneProcessingResult\n};\n\nconst finalNodeOutput = [{'json': outputJsonContent}];\n\nreturn finalNodeOutput;"
+      },
+      "id": "282f4745-284b-47b6-b0b6-6a17c3fb5b33",
+      "name": "Code10",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        -1984
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "res.partner",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {
+          "fieldsList": [
+            "email"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "phone",
+              "value": "={{ $json.phoneFormattingOutcome.formattedString }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        -1984
+      ],
+      "id": "fe3a4854-9877-45df-bd80-c097c14c31e6",
+      "name": "get_contact_id",
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "partner_id",
+              "fieldValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        -1984
+      ],
+      "id": "126dd027-05b0-437c-bf4b-b0eea4737b70",
+      "name": "create_sale_order",
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0144003-43cc-4aaa-8441-15364d68c880",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "0d8dbbab-ccf5-473b-8485-6ffe021ace85",
+              "name": "cart_items",
+              "value": "={{ $('Code9').item.json.cart_items }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1632,
+        -1984
+      ],
+      "id": "5bbedf1d-f0db-478e-a10e-f5b11aa21f02",
+      "name": "Edit Fields11"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "cart_items",
+        "options": {}
+      },
+      "id": "536e7273-a3ff-4038-935e-a45691e68b2e",
+      "name": "Split Out4",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        -2064
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "777e8241-6c11-418a-a4a7-e413090f3507",
+      "name": "Loop Over Items7",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2096,
+        -2112
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "order_id",
+              "fieldValue": "={{ $('create_sale_order').item.json.id }}"
+            },
+            {
+              "fieldName": "product_template_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldName": "product_uom_qty",
+              "fieldValue": "={{ $('Loop Over Items7').item.json.quantity }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "={{ $json.name }}"
+            },
+            {
+              "fieldName": "price_unit",
+              "fieldValue": "={{ $json.list_price }}"
+            }
+          ]
+        }
+      },
+      "id": "9316be53-1ac7-402d-bf31-0b6caba34522",
+      "name": "Odoo9",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        -1872
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "product.template",
+        "operation": "get",
+        "customResourceId": "={{ $json.id }}",
+        "options": {
+          "fieldsList": [
+            "id",
+            "name",
+            "list_price"
+          ]
+        }
+      },
+      "id": "ce38278a-2a46-45ad-8aa8-1df9508f8900",
+      "name": "Odoo10",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2496,
+        -1920
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "get",
+        "customResourceId": "={{ $('create_sale_order').item.json.id }}",
+        "options": {}
+      },
+      "id": "6ef3bf1e-c14f-4eee-b6d0-251afc268679",
+      "name": "Odoo11",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        -2160
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "85e6d35c-ba8d-4404-a3f1-f85105b86fcd",
+              "name": "display_name",
+              "value": "={{ $json.display_name }}",
+              "type": "string"
+            },
+            {
+              "id": "9c4ff1ab-5620-4d0a-b939-0e3c5b212469",
+              "name": "partner_invoice_id[1]",
+              "value": "={{ $json.partner_invoice_id[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "118e47ca-1ddd-410e-9728-c075f81b1235",
+              "name": "tax_totals.total_amount",
+              "value": "={{ $json.tax_totals.total_amount }}",
+              "type": "number"
+            },
+            {
+              "id": "8a243d89-1839-4feb-8603-acfb20035691",
+              "name": "access_url",
+              "value": "=https://www.marotogourmet.es{{ $json.access_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "608d6b5a-c118-4b6f-b81d-805958cfa748",
+      "name": "Edit Fields13",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2672,
+        -2160
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2880,
+        -2160
+      ],
+      "id": "472aa5e3-95bd-4495-8c71-559e9436a946",
+      "name": "Respond to Webhook9"
+    }
+  ],
+  "pinData": {
+    "Orders": [
+      {
+        "json": {
+          "headers": {
+            "host": "automation.epoint.es",
+            "user-agent": "axios/1.7.4",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "x-forwarded-for": "98.82.112.146",
+            "x-forwarded-host": "automation.epoint.es",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "376d3d46f3e5",
+            "x-real-ip": "98.82.112.146"
+          },
+          "params": {},
+          "query": {
+            "order_id": "S00047"
+          },
+          "body": {},
+          "webhookUrl": "https://automation.epoint.es/webhook/f34d0103-fde2-4ba4-9efd-fcf37ec39476",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "transfer-info": [
+      {
+        "json": {
+          "id": 32,
+          "activity_ids": [],
+          "activity_state": false,
+          "activity_user_id": false,
+          "activity_type_id": false,
+          "activity_type_icon": false,
+          "activity_date_deadline": false,
+          "my_activity_date_deadline": false,
+          "activity_summary": false,
+          "activity_exception_decoration": false,
+          "activity_exception_icon": false,
+          "activity_calendar_event_id": false,
+          "message_is_follower": true,
+          "message_follower_ids": [
+            2453,
+            2454
+          ],
+          "message_partner_ids": [
+            3,
+            11456
+          ],
+          "message_ids": [
+            5980,
+            5979
+          ],
+          "has_message": true,
+          "message_needaction": false,
+          "message_needaction_counter": 0,
+          "message_has_error": false,
+          "message_has_error_counter": 0,
+          "message_attachment_count": 0,
+          "rating_ids": [],
+          "website_message_ids": [],
+          "message_has_sms_error": false,
+          "name": "CM/OUT/00018",
+          "origin": "S00047",
+          "note": false,
+          "backorder_id": false,
+          "backorder_ids": [],
+          "return_id": false,
+          "return_ids": [],
+          "return_count": 0,
+          "move_type": "direct",
+          "state": "confirmed",
+          "group_id": [
+            26,
+            "S00047"
+          ],
+          "priority": "0",
+          "scheduled_date": "2025-06-19 08:47:33",
+          "date_deadline": "2025-06-19 08:47:33",
+          "has_deadline_issue": false,
+          "date": "2025-06-19 08:47:33",
+          "date_done": false,
+          "delay_alert_date": false,
+          "json_popover": false,
+          "location_id": [
+            8,
+            "CM/Stock"
+          ],
+          "location_dest_id": [
+            5,
+            "Partners/Customers"
+          ],
+          "move_ids": [
+            56,
+            57
+          ],
+          "move_ids_without_package": [
+            56,
+            57
+          ],
+          "has_scrap_move": false,
+          "picking_type_id": [
+            2,
+            "Congelados Maroto SL: Delivery Orders"
+          ],
+          "warehouse_address_id": [
+            1,
+            "Congelados Maroto SL"
+          ],
+          "picking_type_code": "outgoing",
+          "picking_type_entire_packs": false,
+          "use_create_lots": false,
+          "use_existing_lots": true,
+          "partner_id": [
+            11456,
+            "Mark Mordvin"
+          ],
+          "company_id": [
+            1,
+            "Congelados Maroto SL"
+          ],
+          "user_id": false,
+          "move_line_ids": [],
+          "move_line_ids_without_package": [],
+          "move_line_exist": false,
+          "has_packages": false,
+          "show_check_availability": true,
+          "show_allocation": false,
+          "owner_id": false,
+          "printed": false,
+          "signature": false,
+          "is_signed": false,
+          "is_locked": true,
+          "weight_bulk": 0,
+          "shipping_weight": 0,
+          "shipping_volume": 0,
+          "product_id": [
+            1337,
+            "ADOBO ENHARINADO CASERO"
+          ],
+          "lot_id": false,
+          "show_operations": false,
+          "show_lots_text": false,
+          "has_tracking": true,
+          "package_level_ids": [],
+          "package_level_ids_details": [],
+          "products_availability": "No disponible",
+          "products_availability_state": "late",
+          "picking_properties": [],
+          "show_next_pickings": false,
+          "search_date_category": false,
+          "display_name": "CM/OUT/00018",
+          "create_uid": [
+            2,
+            "Congelados Maroto SL"
+          ],
+          "create_date": "2025-06-19 08:47:33",
+          "write_uid": [
+            2,
+            "Congelados Maroto SL"
+          ],
+          "write_date": "2025-06-19 08:47:33",
+          "has_kits": false,
+          "production_count": 0,
+          "production_ids": [],
+          "project_id": false,
+          "country_code": "ES",
+          "purchase_id": false,
+          "days_to_arrive": false,
+          "delay_pass": "2025-06-19 08:50:28",
+          "sale_id": [
+            43,
+            "S00047"
+          ],
+          "carrier_price": 0,
+          "delivery_type": false,
+          "carrier_id": false,
+          "weight": 21,
+          "carrier_tracking_ref": false,
+          "carrier_tracking_url": false,
+          "weight_uom_name": "kg",
+          "is_return_picking": false,
+          "return_label_ids": [],
+          "destination_country_code": "ES",
+          "website_id": false
+        }
+      }
+    ],
+    "Webhook4": [
+      {
+        "json": {
+          "headers": {
+            "host": "automation.epoint.es",
+            "user-agent": "axios/1.7.4",
+            "content-length": "127",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "44.213.66.181",
+            "x-forwarded-host": "automation.epoint.es",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "1b1a891db994",
+            "x-real-ip": "44.213.66.181"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "valueType": "dynamic",
+            "dynamicValue": "{\"user_phone_number\":\"34633326419\",\"cart_items\":[{\"id\":1105,\"quantity\":10}]}"
+          },
+          "webhookUrl": "https://automation.epoint.es/webhook/e77c5759-08e5-4b61-9344-aea7ab154656",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Odoo": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ind_prod_search_name": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Odoo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "split_ind_prod",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ind_prod_search_name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ind_products_res": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_ind_prod": {
+      "main": [
+        [
+          {
+            "node": "ind_products_res",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "searched_products_final",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "searched_products_final": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get-order-id-by-name": {
+      "main": [
+        [
+          {
+            "node": "transfer-info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "all-info": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Contact": {
+      "main": [
+        [
+          {
+            "node": "Sales Order1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo4": {
+      "main": [
+        [
+          {
+            "node": "Odoo5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo5": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Odoo6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sales Order1": {
+      "main": [
+        [
+          {
+            "node": "all-info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo6": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "New Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ind_prod_search": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get-contact-id-by-phone-number": {
+      "main": [
+        [
+          {
+            "node": "get-sales-by-res.user-id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "get-contact-id-by-phone-number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get-sales-by-res.user-id": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo7": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items4": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields8": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code7": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get-sales-by-res.user-id1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo8": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items5": {
+      "main": [
+        [
+          {
+            "node": "Code7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields9": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get-contact-id-by-email": {
+      "main": [
+        [
+          {
+            "node": "get-sales-by-res.user-id1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "order-by-email": {
+      "main": [
+        [
+          {
+            "node": "get-contact-id-by-email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook3": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orders": {
+      "main": [
+        [
+          {
+            "node": "get-order-id-by-name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transfer-info": {
+      "main": [
+        [
+          {
+            "node": "sales-info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sales-info": {
+      "main": [
+        [
+          {
+            "node": "Split Out3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items6": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many items": {
+      "main": [
+        [
+          {
+            "node": "Code8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code8": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "odoo_catalog": {
+      "main": [
+        [
+          {
+            "node": "Get many items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields10": {
+      "main": [
+        [
+          {
+            "node": "Code9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code9": {
+      "main": [
+        [
+          {
+            "node": "Code10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code10": {
+      "main": [
+        [
+          {
+            "node": "get_contact_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_contact_id": {
+      "main": [
+        [
+          {
+            "node": "create_sale_order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_sale_order": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields11": {
+      "main": [
+        [
+          {
+            "node": "Split Out4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out4": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items7": {
+      "main": [
+        [
+          {
+            "node": "Odoo11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Odoo10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo9": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo10": {
+      "main": [
+        [
+          {
+            "node": "Odoo9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Odoo11": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields13": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4316ca04-8d14-462b-b71b-cf2edf73c099",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "MpcT1pdzCr4LM7w4",
+  "tags": [
+    {
+      "createdAt": "2024-10-03T09:49:47.828Z",
+      "updatedAt": "2024-10-03T09:49:47.828Z",
+      "id": "gGTJlMaTGEjoTVNf",
+      "name": "MMProject"
+    }
+  ]
+}
