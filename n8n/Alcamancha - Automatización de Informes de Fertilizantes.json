@@ -1,0 +1,307 @@
+{
+  "name": "Alcamancha - Automatización de Informes de Fertilizantes",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8bcdfdf5-5fd3-4a2e-8485-37de636b2523",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un asistente experto en procesar informes de facturación agraria para el ERP Odoo. Tu tarea es extraer datos de compras de fertilizantes de un socio para crear un resumen estructurado.\n\nEl nombre del socio para este informe es \"Jimenez Martinez\".\n\nA continuación te proporcionaré el texto extraído de un informe de facturas. Tu objetivo es analizarlo, ignorar las líneas de detalle de cada factura, y centrarte únicamente en las líneas que contienen la palabra \"SubTotal\". Cada línea de \"SubTotal\" representa una compra agregada de un producto específico.\n\nPara cada línea de \"SubTotal\" que encuentres, debes extraer la siguiente información:\n\n1.  **periodo_agrario**:\n    * Determina el periodo basándote en la fecha de la primera factura de ese bloque de producto.\n    * Si el mes está entre Enero (01) y Junio (06), el formato debe ser \"Primavera [Año]\".\n    * Si el mes está entre Julio (07) y Diciembre (12), el formato debe ser \"Otoño [Año]\".\n    * Usa el año que corresponda a la fecha.\n\n2.  **nombre_producto**:\n    * El nombre completo del artículo. Este es el texto que aparece justo después de \"SubTotal : Artículo\".\n\n3.  **cantidad_total_kg**:\n    * La cantidad total comprada para ese producto. Es el número que se encuentra en la columna \"Cant.Real\" en la misma línea del \"SubTotal\". Es un valor numérico.\n\n4.  **precio_unitario_kg**:\n    * El precio unitario por KILO. Para obtenerlo, busca en las líneas de detalle de ese mismo producto el valor de la columna \"Precio\". Este valor representa el precio por tonelada (1000 kg).\n    * **Cálculo obligatorio**: Debes tomar ese número, dividirlo entre 1000 para obtener el precio por kilo, y formatearlo como un número decimal usando un punto (.). Por ejemplo, si el precio es 562,0000, el resultado debe ser 0.562.\n\n**Formato de Salida:**\nDevuelve el resultado únicamente como un array JSON válido. No añadas explicaciones, comentarios o texto introductorio. Solo el código JSON.\n\n**Ejemplo de la salida esperada basado en la imagen:**\n[\n  {\n    \"periodo_agrario\": \"Otoño 2022\",\n    \"nombre_producto\": \"SUPER 18% GRANULADO\",\n    \"cantidad_total_kg\": 2.040,\n    \"precio_unitario_kg\": 0.410\n  },\n  {\n    \"periodo_agrario\": \"Otoño 2022\",\n    \"nombre_producto\": \"ALCAFER MEZCLA N.P.K. 8-30-6 GRANEL\",\n    \"cantidad_total_kg\": 27.080,\n    \"precio_unitario_kg\": 0.610\n  },\n  {\n    \"periodo_agrario\": \"Primavera 2023\",\n    \"nombre_producto\": \"NITRATO AMONICO 27%\",\n    \"cantidad_total_kg\": 1.860,\n    \"precio_unitario_kg\": 0.562\n  },\n  {\n    \"periodo_agrario\": \"Primavera 2023\",\n    \"nombre_producto\": \"ALCAFER NITRO 40\",\n    \"cantidad_total_kg\": 37.540,\n    \"precio_unitario_kg\": 0.582\n  }\n]\n\n\nAhora, procesa el siguiente texto del informe recibido:\n\n{{ $json.informe_completo }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        -80
+      ],
+      "id": "28179c3d-2245-4041-b428-78e70a534fc0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        864,
+        96
+      ],
+      "id": "aeb17db5-a39b-4bcb-ba7f-3be02a891931",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "t2DjWreuqFUB9Qvc",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1MICE8MADNBj4J7HWkhDvaIr6jxU-n0JZrPQ1Pr2AfDY/edit?gid=635559335#gid=635559335",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 535235369,
+          "mode": "list",
+          "cachedResultName": "2024-2025",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MICE8MADNBj4J7HWkhDvaIr6jxU-n0JZrPQ1Pr2AfDY/edit#gid=535235369"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        240,
+        -16
+      ],
+      "id": "ce618b5b-b933-4176-8e19-0bac55d56f7a",
+      "name": "informe-por-año",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oDK9NCGy59KWhiNb",
+          "name": "Google Sheets account: mm@epoint.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "6f686813-f8ae-4f59-aa60-3a07dde972a0",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "const dataArray = $input.first().json.data;\n\nif (!dataArray || !Array.isArray(dataArray)) {\n  return []; \n}\n\nconst textoCompleto = dataArray\n  .map(fila => Object.values(fila).join(' ')) \n  .join('\\n'); \n\nreturn [{\n  json: {\n    informe_completo: textoCompleto\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        -16
+      ],
+      "id": "5e61e1e5-a892-4938-bf2a-bd796b87576e",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst rawOutput = $input.first().json.output;\n\n\nconst cleanJsonString = rawOutput\n  .replace(\"```json\", \"\")\n  .replace(\"```\", \"\")\n  .trim();\n\n\nconst jsonData = JSON.parse(cleanJsonString);\n\n\nreturn jsonData;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        -80
+      ],
+      "id": "58af047d-992c-4d9f-abef-66d2270e98c6",
+      "name": "output-to-json"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        528,
+        -240
+      ],
+      "id": "5b23ef17-2960-4271-bfb5-83c556b7cf39",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "## Obtención de datos",
+        "height": 272,
+        "width": 912
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -80
+      ],
+      "id": "29fbb1c0-e284-47df-946a-8fb692a11358",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1536,
+        -272
+      ],
+      "id": "5bb8f89b-946d-4193-bc9f-7807ef600ada",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        -32
+      ],
+      "id": "d907b7d6-be27-4589-80a7-378dd1b73b20",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "resource": "custom"
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1808,
+        -320
+      ],
+      "id": "e7352b3c-d4f6-45fa-96ea-7d10bfa8ea1e",
+      "name": "Create an item",
+      "credentials": {
+        "odooApi": {
+          "id": "LOjTOxH8vAcOjU33",
+          "name": "marotogourmet.es"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "informe-por-año",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "informe-por-año": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "output-to-json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "output-to-json": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Create an item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dabeb8ca-b7fd-4018-8335-eb60a31405b8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "kevF8HJBt5xpcSt8",
+  "tags": []
+}
