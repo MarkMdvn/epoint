@@ -1,0 +1,1065 @@
+{
+  "name": "Alcamancha - WB Campaña Fertilizantes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "69133ccf-3990-4ed5-84eb-70dce81093cb",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -272
+      ],
+      "id": "964e19f9-d240-4b59-a9cb-f3570867aa82",
+      "name": "Webhook",
+      "webhookId": "69133ccf-3990-4ed5-84eb-70dce81093cb"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {
+          "messageStatusUpdates": [
+            "all"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        528
+      ],
+      "id": "ac586f9f-7288-4f8e-8611-319055a07f3a",
+      "name": "WhatsApp Trigger",
+      "webhookId": "6676d225-6ebe-4cb7-a1bf-85d94f46682e",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "34kqB6HfFEaXRpS1",
+          "name": "WhatsApp OAuth account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Inicio",
+        "height": 1232,
+        "width": 3360,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -816
+      ],
+      "id": "f8d6f180-f527-47da-bb24-5b274a32019b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "operation": "get",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        528,
+        704
+      ],
+      "id": "a00d4050-775d-45b6-940f-15d313b4a07b",
+      "name": "Get an item",
+      "credentials": {
+        "odooApi": {
+          "id": "H0nb6docwel49LBW",
+          "name": "alcamancha-api"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "712f69cb-2621-449a-9d4f-77054c91da5c",
+              "leftValue": "={{ $json.messages[0].type }}",
+              "rightValue": "=button",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        928
+      ],
+      "id": "c08e3d74-2c43-457b-9846-de7cf05936e4",
+      "name": "If",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        480
+      ],
+      "id": "22134283-6278-483c-b44b-ba5be83f69c1",
+      "name": "HTTP Request",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lUfS6lyQkbYYadlt",
+          "name": "Alcamancha - Whatsapp Business"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": \"{{ $json.messages[0].from }}\",\n  \"type\": \"interactive\",\n  \"interactive\": {\n    \"type\": \"button\",\n    \"body\": {\n      \"text\": \"Aquí va el texto personalizado para el socio. Por ejemplo: Hola {{$json.body.contacts[0].name}}, según nuestros datos tienes X hectáreas...\"\n    },\n    \"action\": {\n      \"buttons\": [\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"repetir_pedido_fiel_{{$json.body.contacts[0].contact_id}}\",\n            \"title\": \"Repetir Pedido\"\n          }\n        },\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"contactar_alcamancha_{{$json.body.contacts[0].contact_id}}\",\n            \"title\": \"Contactar con Alcamancha\"\n          }\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        752
+      ],
+      "id": "4fad72fd-c86b-4781-b1fa-6cb37e460c45",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "705449112658861",
+        "recipientPhoneNumber": "+34633326419",
+        "textBody": "test",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        160,
+        752
+      ],
+      "id": "0a3f4d5f-2e77-42d7-bf27-1f4c5825756b",
+      "name": "Send message and wait for response",
+      "webhookId": "ad7f25fa-4c74-410f-bafe-94e2b17c9eff",
+      "notesInFlow": false,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lUfS6lyQkbYYadlt",
+          "name": "Alcamancha - Whatsapp Business"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "x_plantacion",
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {
+          "fieldsList": [
+            "x_studio_hectreas",
+            "x_studio_tipo_de_plantacin"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "x_contacto",
+              "value": "={{ $json.body.contacts[0].name }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -272
+      ],
+      "id": "9dc82f47-816d-405a-9fa1-7945902bd8f4",
+      "name": "get_plantations",
+      "credentials": {
+        "odooApi": {
+          "id": "H0nb6docwel49LBW",
+          "name": "alcamancha-api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        -272
+      ],
+      "id": "ef894c6c-bd08-40fe-934e-c1379fa1b8b2",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order",
+        "operation": "getAll",
+        "options": {
+          "fieldsList": [
+            "order_line"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "x_studio_periodo_de_reserva",
+              "operator": "like",
+              "value": "Otoño 2024"
+            },
+            {
+              "fieldName": "partner_id",
+              "value": "={{ $('Webhook').item.json.body.contacts[0].contact_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -272
+      ],
+      "id": "1d2d4b78-6d77-48fd-aff2-50af9751e99a",
+      "name": "get_sale_order_period",
+      "credentials": {
+        "odooApi": {
+          "id": "H0nb6docwel49LBW",
+          "name": "alcamancha-api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "order_line",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -272
+      ],
+      "id": "8e2c93de-8c03-4f6e-84c5-ab7486eef3b0",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "sale.order.line",
+        "operation": "get",
+        "customResourceId": "={{ $json.order_line }}",
+        "options": {
+          "fieldsList": [
+            "product_qty",
+            "name"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -224
+      ],
+      "id": "95dd043d-4bab-481f-8a03-ca8d951b52b7",
+      "name": "get_order_line",
+      "credentials": {
+        "odooApi": {
+          "id": "H0nb6docwel49LBW",
+          "name": "alcamancha-api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "plantations_data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -272
+      ],
+      "id": "b0c51e08-cae0-4497-bc7a-b07ff892599a",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "order_data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -416
+      ],
+      "id": "5c002048-e46e-49fd-953c-db403ac960ea",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a5577bcb-2850-4264-9340-8576041e96a8",
+              "name": "body.contacts[0].name",
+              "value": "={{ $('Webhook').item.json.body.contacts[0].name }}",
+              "type": "string"
+            },
+            {
+              "id": "fd539316-7833-449d-b09b-ea58099e2df4",
+              "name": "body.contacts[0].mobile",
+              "value": "={{ $('Webhook').item.json.body.contacts[0].mobile }}",
+              "type": "string"
+            },
+            {
+              "id": "d0cd303e-f1ef-4808-99d3-36082238e144",
+              "name": "order_data",
+              "value": "={{ $json.order_data }}",
+              "type": "array"
+            },
+            {
+              "id": "f10597b0-a8c6-45ea-a9c2-e99493cbeca8",
+              "name": "plantations_data",
+              "value": "={{ $('Aggregate').item.json.plantations_data }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        -416
+      ],
+      "id": "742fe3d5-09be-4ba7-a560-fdc9a79e3fc4",
+      "name": "all_info"
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "705449112658861",
+        "recipientPhoneNumber": "=633326419",
+        "template": "prevision_socio_fiel_basico|es",
+        "components": {
+          "component": [
+            {
+              "type": "header",
+              "headerParameters": {
+                "parameter": [
+                  {
+                    "type": "image",
+                    "imageLink": "https://fertilizantes.alcamancha.com/wp-content/uploads/2025/08/img-directorio-ALCAMANCHA.jpg"
+                  }
+                ]
+              }
+            },
+            {
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "text": "={{ $('formated_info').item.json.nombre }}"
+                  },
+                  {
+                    "text": "={{ $('formated_info').item.json.consumos }}"
+                  },
+                  {
+                    "text": "={{ $('formated_info').item.json.hectareas }}"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        -720
+      ],
+      "id": "8cee66d0-7766-4108-8726-2701b7818430",
+      "name": "send_tpt_socio_fiel_basico",
+      "webhookId": "a889056f-94b1-4389-868d-e9042143ef8e",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lUfS6lyQkbYYadlt",
+          "name": "Alcamancha - Whatsapp Business"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "res.partner",
+        "operation": "get",
+        "customResourceId": "={{ $('Webhook').item.json.body.contacts[0].contact_id }}",
+        "options": {
+          "fieldsList": [
+            "complete_name",
+            "x_studio_conocimiento_informtico",
+            "x_studio_tipologa_de_socio"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2016,
+        -288
+      ],
+      "id": "3e0a6c70-3ef8-4490-8fc2-eb99c77e393b",
+      "name": "get_contact_info",
+      "credentials": {
+        "odooApi": {
+          "id": "H0nb6docwel49LBW",
+          "name": "alcamancha-api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0].json;\n\nconst nombre = item.body.contacts[0].name;\n\nlet consumosText = \"📦 Hemos visto que en otoño del año pasado consumiste: \";\nconst orderData = item.order_data;\n\nif (orderData && orderData.length > 0) {\n  for (const orderLine of orderData) {\n    consumosText += `*${orderLine.name}* (${orderLine.product_qty} t) | `;\n  }\n  consumosText = consumosText.slice(0, -3);\n} else {\n  consumosText = \"📦 No hemos encontrado datos de consumo del año pasado.\";\n}\n\nlet hectareasText = \"\";\nconst plantationsData = item.plantations_data;\n\nif (plantationsData && plantationsData.length > 0) {\n  for (const plantation of plantationsData) {\n    hectareasText += `🌱 *${plantation.x_studio_tipo_de_plantacin}*: ${plantation.x_studio_hectreas} ha | `;\n  }\n  hectareasText = hectareasText.slice(0, -3);\n} else {\n  hectareasText = \"🌱 No se han encontrado datos de plantaciones en la PAC.\";\n}\n\nreturn {\n  json: {\n    nombre: nombre,\n    consumos: consumosText,\n    hectareas: hectareasText\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1776,
+        -288
+      ],
+      "id": "6b762186-a4b2-4442-85ee-0d70085b4cc2",
+      "name": "formated_info"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "143d1901-2940-4a65-be7c-315b2f5c6109",
+              "leftValue": "={{ $json.x_studio_conocimiento_informtico }}",
+              "rightValue": "Básico",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "600f06d4-911b-4935-9be9-8c469cbd834c",
+              "leftValue": "={{ $json.x_studio_tipologa_de_socio }}",
+              "rightValue": "Comprometido",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2320,
+        -704
+      ],
+      "id": "bb67c0da-6422-4688-afc6-5372ca27cdfb",
+      "name": "socio_comprometido_basico"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8fc48976-04f9-485c-be21-3a36d5fa3a8d",
+              "leftValue": "={{ $('get_contact_info').item.json.x_studio_conocimiento_informtico }}",
+              "rightValue": "Normal",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "6b831f83-6ed5-40ef-8338-039d67f06cea",
+              "leftValue": "={{ $json.x_studio_tipologa_de_socio }}",
+              "rightValue": "Comprometido",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2320,
+        -448
+      ],
+      "id": "3656498a-f6d9-4045-aeb2-ac7ee2d0f96b",
+      "name": "socio_comprometido_avanzado"
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "705449112658861",
+        "recipientPhoneNumber": "=633326419",
+        "template": "prevision_socio_fiel_avanzado|es",
+        "components": {
+          "component": [
+            {
+              "type": "header",
+              "headerParameters": {
+                "parameter": [
+                  {
+                    "type": "image",
+                    "imageLink": "https://fertilizantes.alcamancha.com/wp-content/uploads/2025/08/img-directorio-ALCAMANCHA.jpg"
+                  }
+                ]
+              }
+            },
+            {
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "text": "={{ $('formated_info').item.json.nombre }}"
+                  },
+                  {
+                    "text": "={{ $('formated_info').item.json.consumos }}"
+                  },
+                  {
+                    "text": "={{ $('formated_info').item.json.hectareas }}"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        -464
+      ],
+      "id": "73fb16f5-fbc4-43e9-b0c7-4cca0ef92156",
+      "name": "send_tpt_socio_fiel_avanzado",
+      "webhookId": "a889056f-94b1-4389-868d-e9042143ef8e",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lUfS6lyQkbYYadlt",
+          "name": "Alcamancha - Whatsapp Business"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8fc48976-04f9-485c-be21-3a36d5fa3a8d",
+              "leftValue": "={{ $('get_contact_info').item.json.x_studio_conocimiento_informtico }}",
+              "rightValue": "Básico",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "6b831f83-6ed5-40ef-8338-039d67f06cea",
+              "leftValue": "={{ $json.x_studio_tipologa_de_socio }}",
+              "rightValue": "Oportunista",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2320,
+        -192
+      ],
+      "id": "09f35cca-ffeb-4dfe-9899-abdc32d38b57",
+      "name": "socio_oportunista_basico"
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "705449112658861",
+        "recipientPhoneNumber": "=633326419",
+        "template": "socio_oportunista_basico|es",
+        "components": {
+          "component": [
+            {
+              "type": "header",
+              "headerParameters": {
+                "parameter": [
+                  {
+                    "type": "image",
+                    "imageLink": "https://fertilizantes.alcamancha.com/wp-content/uploads/2025/08/img-directorio-ALCAMANCHA.jpg"
+                  }
+                ]
+              }
+            },
+            {
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "text": "={{ $('formated_info').item.json.nombre }}"
+                  },
+                  {
+                    "text": "={{ $('formated_info').item.json.consumos }}"
+                  },
+                  {
+                    "text": "={{ $('formated_info').item.json.hectareas }}"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        -208
+      ],
+      "id": "fd1c1b14-5ce6-4a84-be21-09edb6e69d08",
+      "name": "send_tpt_oportunista_basico",
+      "webhookId": "a889056f-94b1-4389-868d-e9042143ef8e",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lUfS6lyQkbYYadlt",
+          "name": "Alcamancha - Whatsapp Business"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "705449112658861",
+        "recipientPhoneNumber": "={{ $('Webhook').item.json.body.contacts[0].mobile }}",
+        "template": "prevision_socio_oportunista_avanzado_v2|es",
+        "components": {
+          "component": [
+            {
+              "type": "header",
+              "headerParameters": {
+                "parameter": [
+                  {
+                    "type": "image",
+                    "imageLink": "https://fertilizantes.alcamancha.com/wp-content/uploads/2025/08/img-directorio-ALCAMANCHA.jpg"
+                  }
+                ]
+              }
+            },
+            {
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "text": "={{ $('formated_info').item.json.nombre }}"
+                  },
+                  {
+                    "text": "={{ $('formated_info').item.json.consumos }}"
+                  },
+                  {
+                    "text": "={{ $('formated_info').item.json.hectareas }}"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        64
+      ],
+      "id": "0f079297-8034-4529-b766-52c3857c6526",
+      "name": "send_tpt_oportunista_basico1",
+      "webhookId": "a889056f-94b1-4389-868d-e9042143ef8e",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lUfS6lyQkbYYadlt",
+          "name": "Alcamancha - Whatsapp Business"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8fc48976-04f9-485c-be21-3a36d5fa3a8d",
+              "leftValue": "={{ $('get_contact_info').item.json.x_studio_conocimiento_informtico }}",
+              "rightValue": "Normal",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "6b831f83-6ed5-40ef-8338-039d67f06cea",
+              "leftValue": "={{ $json.x_studio_tipologa_de_socio }}",
+              "rightValue": "Oportunista",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2320,
+        80
+      ],
+      "id": "c9a0c2a0-7e2e-4b7e-9e7f-e82edc1ba71f",
+      "name": "socio_oportunista_avanzado"
+    }
+  ],
+  "pinData": {
+    "formated_info": [
+      {
+        "json": {
+          "nombre": "HRDOS DE MIGUEL JIMENEZ MARTINEZ",
+          "consumos": "📦 Hemos visto que en otoño del año pasado consumiste: *ALCAFER MEZCLA N.P.K. 8-30-6 GRANEL* (33.96 t) | *ALCAFER MEZCLA N.P.K. 14-38-6 GRANEL* (5.2 t)",
+          "hectareas": "🌱 *Cebada*: 154.19 ha | 🌱 *Trigo*: 33.5 ha"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "get_plantations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        []
+      ]
+    },
+    "get_plantations": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get_order_line",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_sale_order_period": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_order_line": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "get_sale_order_period",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "all_info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "all_info": {
+      "main": [
+        [
+          {
+            "node": "formated_info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "formated_info": {
+      "main": [
+        [
+          {
+            "node": "get_contact_info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_contact_info": {
+      "main": [
+        [
+          {
+            "node": "socio_comprometido_basico",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "socio_comprometido_avanzado",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "socio_oportunista_basico",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "socio_oportunista_avanzado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_tpt_socio_fiel_basico": {
+      "main": [
+        []
+      ]
+    },
+    "socio_comprometido_basico": {
+      "main": [
+        [
+          {
+            "node": "send_tpt_socio_fiel_basico",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "socio_comprometido_avanzado": {
+      "main": [
+        [
+          {
+            "node": "send_tpt_socio_fiel_avanzado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "send_tpt_socio_fiel_avanzado": {
+      "main": [
+        []
+      ]
+    },
+    "socio_oportunista_basico": {
+      "main": [
+        [
+          {
+            "node": "send_tpt_oportunista_basico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "socio_oportunista_avanzado": {
+      "main": [
+        [
+          {
+            "node": "send_tpt_oportunista_basico1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5e848a84-d935-4ca9-97a9-bc2cab000b31",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "6vVdGoNAmxGq7WBx",
+  "tags": []
+}
