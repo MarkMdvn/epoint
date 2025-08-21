@@ -31,8 +31,8 @@
       "type": "n8n-nodes-base.whatsAppTrigger",
       "typeVersion": 1,
       "position": [
-        -64,
-        528
+        544,
+        592
       ],
       "id": "ac586f9f-7288-4f8e-8611-319055a07f3a",
       "name": "WhatsApp Trigger",
@@ -40,10 +40,9 @@
       "credentials": {
         "whatsAppTriggerApi": {
           "id": "34kqB6HfFEaXRpS1",
-          "name": "WhatsApp OAuth account"
+          "name": "Alcamancha - WhatsApp OAuth account"
         }
-      },
-      "disabled": true
+      }
     },
     {
       "parameters": {
@@ -55,131 +54,11 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -96,
-        -816
+        -208,
+        -832
       ],
       "id": "f8d6f180-f527-47da-bb24-5b274a32019b",
       "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "resource": "custom",
-        "operation": "get",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.odoo",
-      "typeVersion": 1,
-      "position": [
-        528,
-        704
-      ],
-      "id": "a00d4050-775d-45b6-940f-15d313b4a07b",
-      "name": "Get an item",
-      "credentials": {
-        "odooApi": {
-          "id": "H0nb6docwel49LBW",
-          "name": "alcamancha-api"
-        }
-      },
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "712f69cb-2621-449a-9d4f-77054c91da5c",
-              "leftValue": "={{ $json.messages[0].type }}",
-              "rightValue": "=button",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        528,
-        928
-      ],
-      "id": "c08e3d74-2c43-457b-9846-de7cf05936e4",
-      "name": "If",
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "whatsAppApi",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        528,
-        480
-      ],
-      "id": "22134283-6278-483c-b44b-ba5be83f69c1",
-      "name": "HTTP Request",
-      "credentials": {
-        "whatsAppApi": {
-          "id": "lUfS6lyQkbYYadlt",
-          "name": "Alcamancha - Whatsapp Business"
-        }
-      },
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "{\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": \"{{ $json.messages[0].from }}\",\n  \"type\": \"interactive\",\n  \"interactive\": {\n    \"type\": \"button\",\n    \"body\": {\n      \"text\": \"Aquí va el texto personalizado para el socio. Por ejemplo: Hola {{$json.body.contacts[0].name}}, según nuestros datos tienes X hectáreas...\"\n    },\n    \"action\": {\n      \"buttons\": [\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"repetir_pedido_fiel_{{$json.body.contacts[0].contact_id}}\",\n            \"title\": \"Repetir Pedido\"\n          }\n        },\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"contactar_alcamancha_{{$json.body.contacts[0].contact_id}}\",\n            \"title\": \"Contactar con Alcamancha\"\n          }\n        }\n      ]\n    }\n  }\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -64,
-        752
-      ],
-      "id": "4fad72fd-c86b-4781-b1fa-6cb37e460c45",
-      "name": "Edit Fields"
-    },
-    {
-      "parameters": {
-        "operation": "send",
-        "phoneNumberId": "705449112658861",
-        "recipientPhoneNumber": "+34633326419",
-        "textBody": "test",
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.whatsApp",
-      "typeVersion": 1,
-      "position": [
-        160,
-        752
-      ],
-      "id": "0a3f4d5f-2e77-42d7-bf27-1f4c5825756b",
-      "name": "Send message and wait for response",
-      "webhookId": "ad7f25fa-4c74-410f-bafe-94e2b17c9eff",
-      "notesInFlow": false,
-      "credentials": {
-        "whatsAppApi": {
-          "id": "lUfS6lyQkbYYadlt",
-          "name": "Alcamancha - Whatsapp Business"
-        }
-      }
     },
     {
       "parameters": {
@@ -810,15 +689,361 @@
       ],
       "id": "c9a0c2a0-7e2e-4b7e-9e7f-e82edc1ba71f",
       "name": "socio_oportunista_avanzado"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "options": {
+          "systemMessage": "1. ROL Y OBJETIVO\nEres el asistente virtual de Alcamancha, potenciado con IA ☀️. Tu nombre no es relevante, eres simplemente \"el asistente virtual de Alcamancha\". Tu objetivo principal y ÚNICO es ayudar a los socios de la cooperativa a gestionar su reserva de fertilizantes para la próxima campaña agrícola. Eres amable, eficiente y muy directo en tus respuestas. Tu propósito es facilitar el proceso de planificación de compras para asegurar la disponibilidad de stock y los mejores precios para todos.\n\n2. CONTEXTO DE LA CONVERSACIÓN\nEstás recibiendo respuestas por WhatsApp de socios a los que se les ha enviado previamente un mensaje con la siguiente información:\n\nNombre del socio.\n\nConsumo de fertilizantes del otoño del año anterior (ej: ALCAFER MEZCLA N.P.K. 8-30-6 GRANEL (33.96 t)).\n\nHectáreas de referencia de sus cultivos principales según la PAC actual (ej: Cebada: 154.19 ha).\n\nDos botones/opciones: \"Reservar mismas cantidades\" y \"Contactar con Alcamancha\".\n\nTu tarea es analizar la respuesta del socio y actuar según una de las tres intenciones posibles.\n\n3. REGLAS Y DIRECTRICES PRINCIPALES\nCíñete al tema: Bajo ninguna circunstancia hables de temas que no sean la reserva de fertilizantes. Si un usuario pregunta por el tiempo, el precio de la cosecha, o cualquier otro tema, debes responder amablemente que tu única función es asistir con la reserva actual.\n\nIdentifica la intención: Tu primera tarea es identificar si el socio quiere:\n\nConfirmar el pedido del año pasado.\n\nModificar su pedido (lo que implica solicitar un formulario).\n\nSer contactado por un gestor.\n\nSé conciso: No añadas información innecesaria. Ve directo al grano.\n\nUsa la información de contexto: Cuando confirmes un pedido, debes usar los datos de consumo del año pasado que se te proporcionarán en el contexto.\n\n4. GESTIÓN DE INTENCIONES (FLUJOS DE RESPUESTA)\nINTENCIÓN 1: Confirmar pedido (\"Reservar mismas cantidades\")\nSi el usuario responde afirmativamente, con frases como \"Si\", \"Confirmar\", \"Repetir pedido\", \"El mismo del año pasado\", \"Adelante\", \"Ok\", o pulsa el botón correspondiente.\n\nTu respuesta DEBE ser:\n\n\"¡Perfecto! Hemos registrado tu petición. Para la campaña de otoño, prepararemos una reserva con un consumo similar al del año pasado: [Aquí insertarás dinámicamente los productos y cantidades del socio]. Si en algún momento necesitas modificar algo, no dudes en escribirnos de nuevo para que un gestor te contacte. ¡Gracias por tu colaboración!\"\n\nINTENCIÓN 2: Modificar pedido (Necesita el formulario)\nSi el usuario indica que necesita cantidades diferentes, pregunta cómo puede cambiar el pedido, o dice frases como \"Quiero cambiarlo\", \"Necesito otras cosas\", \"Rellenar formulario\".\n\nTu respuesta DEBE ser:\n\n\"Entendido. Para que puedas ajustar las cantidades según tus necesidades, aquí tienes el enlace a nuestro formulario de reserva. Está pre-rellenado con tus datos para que sea más sencillo.\n\n[Aquí se insertará dinámicamente el enlace de WordPress]\n\nSi tienes cualquier duda mientras lo completas, avísame.\"\n\nINTENCIÓN 3: Solicitar contacto (\"Contactar con Alcamancha\")\nSi el usuario pide que le llamen, dice que tiene dudas, o pulsa el botón \"Contactar con Alcamancha\".\n\nTu respuesta DEBE ser:\n\n\"¡Claro! Hemos registrado tu solicitud. Un gestor de tu cooperativa se pondrá en contacto contigo lo antes posible para resolver tus dudas y ajustar tu reserva personalmente. Gracias.\"\n\n5. GESTIÓN DE PREGUNTAS FRECUENTES (FAQ)\nSi el usuario pregunta: \"¿Cómo funciona esto?\" o \"¿Para qué es esto?\"\nTu respuesta debe ser:\n\n\"Esta es una herramienta para planificar las compras de fertilizantes de la cooperativa. Al hacer una previsión, podemos negociar mejores precios y asegurar que tengamos stock suficiente para todos los socios cuando lo necesiten. Tu reserva se basa en tu consumo anterior, pero siempre puedes ajustarla.\"\n\nSi el usuario pregunta por recomendaciones o dosis de abonado:\nTu respuesta debe ser:\n\n\"Claro, aquí tienes las dosis de referencia recomendadas por hectárea para nuestros fertilizantes principales:\n\nAbonado de otoño (sólido):\n\n8-30-6 → 200 kg/ha\n\n14-38-6 → 160 kg/ha\n\n18-46-0 → 150 kg/ha\n\nAbonado de otoño (líquido):\n\n5-15-5 → 230 kg/ha\n\nAbonado de primavera:\n\nNitro 40 → 180 kg/ha\n\nNitro 33 → 200 kg/ha\n\nNitro 29 → 250 kg/ha\n\nNAC 27 → 250 kg/ha\n\nUrea → 220 kg/ha\n\nAbonado líquido (primavera):\n\nN32 → entre 200 y 220 kg/ha\"\n\n6. GESTIÓN DE TEMAS FUERA DE ALCANCE\nSi el usuario pregunta por cualquier otra cosa (el tiempo, otras campañas, personal de la cooperativa, etc.), NO intentes responder.\n\nTu respuesta DEBE ser siempre una variación de:\n\n\"En este momento, mi única función es ayudarte con la previsión y reserva de fertilizantes para la campaña de otoño. Si tienes otra consulta, puedo registrar un aviso para que un gestor de tu cooperativa te contacte directamente. ¿Quieres que lo haga?\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2048,
+        576
+      ],
+      "id": "b9102b7b-ee29-485d-a03b-bd5543606577",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2000,
+        784
+      ],
+      "id": "2ccdd709-e92d-4c7f-9e10-decfb94d7f80",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "t2DjWreuqFUB9Qvc",
+          "name": "MM - OpenAi account - Alcamancha"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "705449112658861",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        576
+      ],
+      "id": "ac7bf02f-18db-4761-93cb-3704d514e6e8",
+      "name": "Send message",
+      "webhookId": "d478df75-b6dc-4eff-a4a7-126fdb8ca5c1",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lUfS6lyQkbYYadlt",
+          "name": "Alcamancha - Whatsapp Business"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "res.partner",
+        "operation": "getAll",
+        "limit": 1,
+        "options": {
+          "fieldsList": [
+            "id",
+            "name"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "mobile",
+              "operator": "like",
+              "value": "=633 32 64 19"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        752,
+        592
+      ],
+      "id": "e5d08c4b-f45f-42cf-82ea-68e227978c3c",
+      "name": "Get many items",
+      "credentials": {
+        "odooApi": {
+          "id": "H0nb6docwel49LBW",
+          "name": "alcamancha-api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "mail.message",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "model",
+              "fieldValue": "res.partner"
+            },
+            {
+              "fieldName": "res_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldName": "body",
+              "fieldValue": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}"
+            },
+            {
+              "fieldName": "message_type",
+              "fieldValue": "comment"
+            },
+            {
+              "fieldName": "subtype_id",
+              "fieldValue": "1"
+            },
+            {
+              "fieldName": "subject",
+              "fieldValue": "Mensaje del Usuario"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        960,
+        592
+      ],
+      "id": "5a711e51-38ee-4ec0-afb8-90683f0830d0",
+      "name": "Create an item",
+      "credentials": {
+        "odooApi": {
+          "id": "H0nb6docwel49LBW",
+          "name": "alcamancha-api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "mail.message",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "model",
+              "fieldValue": "res.partner"
+            },
+            {
+              "fieldName": "res_id",
+              "fieldValue": "={{ $('Get many items').item.json.id }}"
+            },
+            {
+              "fieldName": "body",
+              "fieldValue": "={{ $('AI Agent').item.json.output }}"
+            },
+            {
+              "fieldName": "message_type",
+              "fieldValue": "comment"
+            },
+            {
+              "fieldName": "subtype_id",
+              "fieldValue": "1"
+            },
+            {
+              "fieldName": "subject",
+              "fieldValue": "Mensaje del Bot"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        2544,
+        576
+      ],
+      "id": "6941137e-8833-40fc-8247-45767239ed19",
+      "name": "Create an item1",
+      "credentials": {
+        "odooApi": {
+          "id": "H0nb6docwel49LBW",
+          "name": "alcamancha-api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ea1e8b0d-225d-4825-835a-e839b5a1972c",
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].button.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "42da5a9e-4dab-4793-82a8-3b345a3a2c1b",
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1440,
+        576
+      ],
+      "id": "10df3e7a-94e3-4a95-807b-e5ba10021a11",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "74a44c27-4ab8-457a-ac6d-2fe317d4f06b",
+              "name": "data",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].button.text }}",
+              "type": "string"
+            },
+            {
+              "id": "e2905837-60e3-4be9-b424-ba0428dc6425",
+              "name": "data",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1728,
+        576
+      ],
+      "id": "80092678-cfd5-4945-9bde-093eba7f18cf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "88c762b7-115b-40b8-8f1e-f6c5ad721d06",
+              "leftValue": "={{ $json.statuses[0].pricing }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1168,
+        592
+      ],
+      "id": "235b48cc-656a-49ba-877e-e4cff0f90ae2",
+      "name": "If"
     }
   ],
   "pinData": {
-    "formated_info": [
+    "WhatsApp Trigger": [
       {
         "json": {
-          "nombre": "HRDOS DE MIGUEL JIMENEZ MARTINEZ",
-          "consumos": "📦 Hemos visto que en otoño del año pasado consumiste: *ALCAFER MEZCLA N.P.K. 8-30-6 GRANEL* (33.96 t) | *ALCAFER MEZCLA N.P.K. 14-38-6 GRANEL* (5.2 t)",
-          "hectareas": "🌱 *Cebada*: 154.19 ha | 🌱 *Trigo*: 33.5 ha"
+          "messaging_product": "whatsapp",
+          "metadata": {
+            "display_phone_number": "34608654106",
+            "phone_number_id": "705449112658861"
+          },
+          "contacts": [
+            {
+              "profile": {
+                "name": "Mark"
+              },
+              "wa_id": "34633326419"
+            }
+          ],
+          "messages": [
+            {
+              "from": "34633326419",
+              "id": "wamid.HBgLMzQ2MzMzMjY0MTkVAgASGBQzRkFFRTAwMjgwODVCQzc4QkY3NgA=",
+              "timestamp": "1755805613",
+              "text": {
+                "body": "hola"
+              },
+              "type": "text"
+            }
+          ],
+          "field": "messages"
         }
       }
     ]
@@ -837,29 +1062,13 @@
     },
     "WhatsApp Trigger": {
       "main": [
-        []
-      ]
-    },
-    "If": {
-      "main": [
-        [],
-        []
-      ]
-    },
-    "Edit Fields": {
-      "main": [
         [
           {
-            "node": "Send message and wait for response",
+            "node": "Get many items",
             "type": "main",
             "index": 0
           }
         ]
-      ]
-    },
-    "Send message and wait for response": {
-      "main": [
-        []
       ]
     },
     "get_plantations": {
@@ -1049,13 +1258,108 @@
           }
         ]
       ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many items": {
+      "main": [
+        [
+          {
+            "node": "Create an item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an item": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message": {
+      "main": [
+        [
+          {
+            "node": "Create an item1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "5e848a84-d935-4ca9-97a9-bc2cab000b31",
+  "versionId": "46803f9d-a262-4ee9-a3a6-f98686fc2bfb",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
