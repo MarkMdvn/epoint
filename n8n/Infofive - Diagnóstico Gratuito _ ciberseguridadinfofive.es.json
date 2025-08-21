@@ -1,0 +1,321 @@
+{
+  "name": "Infofive - Diagnóstico Gratuito | ciberseguridadinfofive.es",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "51ae6547-9cd2-4e44-8098-175154215da7",
+              "name": "email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "efce5a1f-93df-4376-b8f3-56606bc589d4",
+              "name": "org",
+              "value": "=Tipo de Organización: {{ $json.body.input_radio }}",
+              "type": "string"
+            },
+            {
+              "id": "cdf90883-e934-497b-9475-88117446486c",
+              "name": "Sector",
+              "value": "=Sector: {{ $json.body.input_text }}",
+              "type": "string"
+            },
+            {
+              "id": "5fcb254c-7ccc-4e73-8431-becbdc8028d1",
+              "name": "tamaño de la empresa",
+              "value": "=Tamaño de la empresa: {{ $json.body.input_radio_1 }}",
+              "type": "string"
+            },
+            {
+              "id": "78c5637b-eccf-4e42-95fd-7566c692bdce",
+              "name": "body.input_radio_3",
+              "value": "=¿Podrías o sabrías detectar a los ciberatacantes si quisieran acceder a la red y a los equipos de tu empresa?: {{ $json.body.input_radio_3 }}",
+              "type": "string"
+            },
+            {
+              "id": "7ccb9d37-6ced-4f62-9006-fbf856512078",
+              "name": "body.input_text_1",
+              "value": "=¿Tienes un antivirus gratuito o estas pagando por ello? ¿Sabes que hace realmente tu antivirus para proteger tu equipo?: {{ $json.body.input_text_1 }}",
+              "type": "string"
+            },
+            {
+              "id": "6899647b-4d69-4a81-9134-10f72087bfc5",
+              "name": "ransomware",
+              "value": "=Frente a un ataque de secuestro de datos (ransomware), ¿tienes alguna protección específica?: {{ $json.body.dropdown_2 }}",
+              "type": "string"
+            },
+            {
+              "id": "61be12c4-4555-4465-8c29-0cab3c365b71",
+              "name": "body.input_radio_5",
+              "value": "=Si alguien descubre tus contraseñas ¿Tienes alguna medida segura para evitar que accedan a sitios privados con tus credenciales?: {{ $json.body.input_radio_5 }}",
+              "type": "string"
+            },
+            {
+              "id": "53691762-de80-491b-96b9-27c7bb21e048",
+              "name": "body.input_radio_6",
+              "value": "=Si hoy pierdes archivos o toda tu información, o no tienes acceso a ella por un virus ¿Podrías recuperarla rápidamente?: {{ $json.body.input_radio_6 }}",
+              "type": "string"
+            },
+            {
+              "id": "c6ed76f8-ac2a-4cc2-86b9-3d84c4fd72d4",
+              "name": "body.input_radio_4",
+              "value": "=¿Tu correo electrónico detecta correos falsos y virus antes de que los abras?: {{ $json.body.input_radio_4 }}",
+              "type": "string"
+            },
+            {
+              "id": "91b5f3dd-108c-45f1-943a-b894ad40c045",
+              "name": "incidente",
+              "value": "=¿Tu empresa ha sufrido algún incidente de seguridad en los últimos 2 años?: {{ $json.body.input_radio_2 }}",
+              "type": "string"
+            },
+            {
+              "id": "b2889cae-b8d6-46af-82d6-9319a6456ad5",
+              "name": "nis2",
+              "value": "=¿Conoces la nueva Directiva NIS2 y si te obliga a cumplirla?: {{ $json.body.dropdown_3 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e4012cc4-a292-40c6-a281-5cd5f57e05da",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        992,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "contactName": "={{ $json.email }} - WEB",
+        "additionalFields": {
+          "email": "={{ $json.email }}"
+        }
+      },
+      "id": "7075143e-caaa-4419-b707-d17d50ff141e",
+      "name": "Odoo",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        208
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "mbKLFZj5JIJY15Kv",
+          "name": "infofive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.stringify($json, null, 2) }}",
+        "options": {}
+      },
+      "id": "2543557c-b88c-4aba-a695-37a2a2571ed3",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "2edb5cd7-23a6-4403-8d4f-13c07d8f234d",
+        "options": {}
+      },
+      "id": "88aa9ab3-21a6-41f8-9bd9-55dad7ecfd07",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        704,
+        592
+      ],
+      "webhookId": "2edb5cd7-23a6-4403-8d4f-13c07d8f234d"
+    },
+    {
+      "parameters": {
+        "resource": "opportunity",
+        "opportunityName": "Diagnóstico de Ciberseguridad ",
+        "additionalFields": {
+          "email_from": "={{ $('Edit Fields').item.json.email }}",
+          "description": "={{\n\n`Correo: ${$json.email}<br><br>\n${$json.org}<br><br>\n${$json.Sector}<br><br>\n${$json['tamaño de la empresa']}<br><br>\n${$json.body.input_text_1}<br><br>\n${$json.body.input_radio_6}<br><br>\n${$json.body.input_radio_3}<br><br>\n${$json.body.input_radio_4}<br><br>\n${$json.body.input_radio_5}<br><br>\n${$json.ransomware}<br><br>\n${$json.incidente}<br><br>\n${$json.nis2}`\n\n}}"
+        }
+      },
+      "id": "a99c4209-e0ae-4a59-8d0e-18ea6a17e2ee",
+      "name": "Create an opportunity",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        400
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "mbKLFZj5JIJY15Kv",
+          "name": "infofive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "newsletter",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        720,
+        848
+      ],
+      "id": "4d466d13-0318-4335-90c1-432603a4ac6c",
+      "name": "Webhook1",
+      "webhookId": "46f2d2b4-c79f-4071-8923-d91a70079728"
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "mailing.contact",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "email",
+              "fieldValue": "={{ $json.body.email }}"
+            },
+            {
+              "fieldName": "list_ids",
+              "fieldValue": "={{ [2] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        992,
+        800
+      ],
+      "id": "20469346-3687-413d-bcd6-a9eb29752229",
+      "name": "Create an item",
+      "credentials": {
+        "odooApi": {
+          "id": "mbKLFZj5JIJY15Kv",
+          "name": "infofive"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "automation.epoint.es",
+            "user-agent": "WordPress/6.8.2; https://www.ciberseguridadinfofive.es",
+            "content-length": "586",
+            "accept": "*/*",
+            "accept-encoding": "deflate, gzip",
+            "content-type": "application/json",
+            "x-forwarded-for": "213.158.86.20",
+            "x-forwarded-host": "automation.epoint.es",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "95a8399f1ffe",
+            "x-real-ip": "213.158.86.20"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "__fluent_form_embded_post_id": "2423",
+            "_fluentform_3_fluentformnonce": "1947950574",
+            "_wp_http_referer": "/diagnostico-de-ciberseguirdad/",
+            "email": "mark.mordvin@epoint.es",
+            "input_radio": "PYME",
+            "input_text": "test",
+            "input_radio_1": "1-10",
+            "dropdown": "Sí, pero cada uno va por su cuenta.",
+            "dropdown_1": "Sí, pero nunca hemos intentado restaurarlas.",
+            "input_radio_3": "No",
+            "input_text_1": "Tenemos McFee",
+            "input_radio_4": "Sí",
+            "dropdown_2": "No que yo sepa.",
+            "input_radio_5": "no",
+            "input_radio_6": "no",
+            "input_radio_2": "Sí",
+            "dropdown_3": "Sí, y estamos trabajando en ello."
+          },
+          "webhookUrl": "https://automation.epoint.es/webhook/2edb5cd7-23a6-4403-8d4f-13c07d8f234d",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Create an opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Create an item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d4b31f9a-96eb-4e67-8b7b-ada595fd51f9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "KZkzZtKUUawjAl1a",
+  "tags": []
+}
