@@ -1,0 +1,573 @@
+{
+  "name": "Generación de Informes Mensuales con IA | Odoo",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -368,
+        -16
+      ],
+      "id": "e48b856c-4cca-4a30-9e20-f0073ad85bfa",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- INICIO DEL CÓDIGO UNIFICADO ---\n\n// 1. Obtenemos la fecha del mes anterior.\n// El truco de .setDate(0) nos lleva al último día del mes pasado.\nconst fechaFinMesAnterior = new Date();\nfechaFinMesAnterior.setDate(0);\n\n// 2. A partir de la fecha final, calculamos la fecha de inicio (siempre será el día 1).\nconst fechaInicioMesAnterior = new Date(fechaFinMesAnterior.getFullYear(), fechaFinMesAnterior.getMonth(), 1);\n\n// --- CÁLCULO 1: Fechas de inicio y fin formateadas ---\n\n// Función para formatear fechas a YYYY-MM-DD, ideal para APIs.\nfunction formatearFecha(fecha) {\n  const anio = fecha.getFullYear();\n  // getMonth() es 0-11, por eso sumamos 1.\n  const mes = String(fecha.getMonth() + 1).padStart(2, '0');\n  const dia = String(fecha.getDate()).padStart(2, '0');\n  \n  return `${anio}-${mes}-${dia}`;\n}\n\nconst fechaInicioFormateada = formatearFecha(fechaInicioMesAnterior);\nconst fechaFinFormateada = formatearFecha(fechaFinMesAnterior);\n\n\n// --- CÁLCULO 2: Nombre de la carpeta ---\n\n// Usamos toLocaleDateString sobre la fecha del mes anterior para obtener el nombre en español.\nconst nombreCarpeta = fechaFinMesAnterior.toLocaleDateString('es-ES', {\n  month: 'long',   // Nombre completo del mes (ej: \"agosto\")\n  year: 'numeric'  // Año (ej: \"2025\")\n});\n\n// Ponemos la primera letra en mayúscula para un formato más profesional (Agosto 2025).\nconst nombreCarpetaCapitalizado = nombreCarpeta.charAt(0).toUpperCase() + nombreCarpeta.slice(1);\n\n\n// --- RESULTADO FINAL ---\n\n// 3. Devolvemos un único objeto con los tres datos.\nreturn [{\n  fecha_inicio: fechaInicioFormateada,    // ej: \"2025-08-01\"\n  fecha_fin: fechaFinFormateada,          // ej: \"2025-08-31\"\n  nombre_carpeta: nombreCarpetaCapitalizado // ej: \"Agosto 2025\"\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -16
+      ],
+      "id": "49b55b94-d225-4e92-a79f-8ee8b0ac0130",
+      "name": "get_dates"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        464,
+        -16
+      ],
+      "id": "9585c26f-ca5d-4404-8521-251627dd0d37",
+      "name": "Loop Over Items",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "project.project",
+        "operation": "getAll",
+        "limit": 20,
+        "options": {
+          "fieldsList": [
+            "name"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        256,
+        -16
+      ],
+      "id": "690e672d-d7ce-4bed-900f-cfede9a9ead5",
+      "name": "get-projects",
+      "credentials": {
+        "odooApi": {
+          "id": "Oal5BZMtRMtRW7dl",
+          "name": "gestion-de-negocios-digitales-sl.odoo.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Por favor, genera el informe de actividades siguiendo estrictamente tu rol y las reglas definidas.\n\n### CONTEXTO DEL INFORME ###\n- **Empresa que reporta:** epoint.es\n- **Periodo:** Del {{ $('get_dates').item.json.fecha_inicio }} al {{ $('get_dates').item.json.fecha_fin }}\n\n### DATOS BRUTOS DE ACTIVIDADES ###\nA continuación se presentan las tareas y sus descripciones. Cada \"Nombre de Tarea\" se corresponde con la \"Descripción del Trabajo\" en la misma posición de la lista.\n\n**Nombres de Tareas:**\n{{ JSON.stringify($json.tasks_names) }}\n\n**Descripciones del Trabajo Realizado:**\n{{ JSON.stringify($json[\"tasks-done\"]) }}\n\n### INSTRUCCIONES FINALES ###\nUsa los datos brutos para redactar un informe profesional y bien estructurado. Identifica el nombre del proyecto a partir de los datos y úsalo en el título y la introducción. Agrupa las tareas en secciones claras y coherentes. El resultado debe ser un texto listo para ser copiado en un documento. **Asegúrate de que toda la salida esté en formato Markdown.**",
+        "options": {
+          "systemMessage": "Eres un consultor experto en gestión de proyectos que trabaja para \"epoint.es\", una empresa líder en digitalización de negocios.\n\nTu misión es transformar listas de tareas internas, a menudo breves o con jerga, en un informe de actividades mensual que sea profesional, claro y orientado al cliente.\n\nReglas que debes seguir siempre:\n1.  **Interpreta y Profesionaliza:** Expande las notas vagas. Por ejemplo, si lees \"reunión cliente\", conviértelo en \"Se mantuvo una reunión de seguimiento con el cliente para revisar avances y planificar los siguientes pasos\". Si lees \"correo y org del dia\", transfórmalo en \"Gestión de la comunicación diaria y organización de las prioridades del proyecto\".\n2.  **Identifica el Proyecto Principal:** En la lista de nombres de tareas, identifica el nombre del cliente o proyecto que se repite y úsalo como el sujeto principal del informe.\n3.  **Agrupa y Categoriza:** No listes las tareas una por una. Agrupa las actividades relacionadas en categorías lógicas como \"Desarrollo Técnico y Automatizaciones\", \"Gestión del Proyecto y Comunicación\", \"Administración y Contabilidad\" o \"Formación e Investigación\".\n4.  **Filtra el Ruido:** Ignora por completo las entradas que no aportan valor, como \"/\", \"hecho\", o descripciones muy cortas sin contexto. No las menciones.\n5.  **Estructura del Informe:** El informe debe seguir siempre esta estructura:\n    - Título (Ej: Informe Mensual de Actividades - [Nombre del Proyecto])\n    - Fecha\n    - Párrafo de Introducción (resumiendo el objetivo del mes).\n    - Secciones por categorías con las actividades detalladas.\n    - Párrafo de Conclusión (resumiendo el trabajo y próximos pasos).\n\n6.  **Formato de Salida:** Debes generar el informe usando formato Markdown. Utiliza '#' para el título principal, '##' para los subtítulos de las secciones (como Introducción, Desarrollo, etc.), y asteriscos para las negritas (*palabra clave*)."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        80
+      ],
+      "id": "6dd33542-f891-490c-898d-5ea2711e9adf",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "name",
+              "renameField": true,
+              "outputFieldName": "tasks-done"
+            },
+            {
+              "fieldToAggregate": "display_name",
+              "renameField": true,
+              "outputFieldName": "tasks_names"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        80
+      ],
+      "id": "9d7722e1-ac18-471d-adbc-23e1d1c8df65",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "chatgpt-4o-latest"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1248,
+        336
+      ],
+      "id": "cc9ae243-8603-47d6-a727-33171295b1d9",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "LEV5gp8ajhtKO4OK",
+          "name": "epoint-odoo-linkedin-blog-sync"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "={{ $('Create folder').item.json.id }}",
+        "title": "=Informe de {{ $('get_dates').item.json.nombre_carpeta }} - {{ $('Loop Over Items').item.json.name }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1776,
+        80
+      ],
+      "id": "60dd8920-c48c-4331-ac3d-057b90216aef",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "8Byglv9igIT7jvER",
+          "name": "Cloud - acc"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2064,
+        80
+      ],
+      "id": "6cae28be-b58f-44f7-9530-53b289d21152",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "8Byglv9igIT7jvER",
+          "name": "Cloud - acc"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('get_dates').item.json.nombre_carpeta }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1qF-cyIyD4gRcZ5ryyonYKGPYp2E37gZf",
+          "mode": "list",
+          "cachedResultName": "Informes Mensuales - IA - MM",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1qF-cyIyD4gRcZ5ryyonYKGPYp2E37gZf"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        48,
+        -16
+      ],
+      "id": "292ad7e0-ab86-4600-a864-cd0e885579d2",
+      "name": "Create folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "5pAtpbwwJPZUPLsa",
+          "name": "Cloud-mm"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "account.analytic.line",
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {
+          "fieldsList": [
+            "partner_id",
+            "display_name",
+            "name"
+          ]
+        },
+        "filterRequest": {
+          "filter": [
+            {
+              "fieldName": "project_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "fieldName": "date",
+              "operator": "greaterThen",
+              "value": "={{ $('get_dates').item.json.fecha_inicio }}"
+            },
+            {
+              "fieldName": "date",
+              "operator": "lesserThen",
+              "value": "={{ $('get_dates').item.json.fecha_fin }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        688,
+        96
+      ],
+      "id": "c65a3ab6-d408-4b0f-baed-83cb28b9ab5d",
+      "name": "get-tasks",
+      "alwaysOutputData": true,
+      "credentials": {
+        "odooApi": {
+          "id": "Oal5BZMtRMtRW7dl",
+          "name": "gestion-de-negocios-digitales-sl.odoo.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "mark.mordvin@epoint.es",
+        "subject": "={{ $json.emailSubject }}",
+        "message": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1376,
+        -160
+      ],
+      "id": "0b26a768-f80b-4e3d-902c-8b1a7d89dff6",
+      "name": "Send a message",
+      "webhookId": "76e09202-9dba-4d37-8b1f-388078686af5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ShGZiDjewBkUGNNt",
+          "name": "Gmail account - MM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "96cbcdf3-ad20-4a23-8818-b9ef8280ace5",
+              "name": "project-name",
+              "value": "={{ $('Loop Over Items').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "76de7eb7-4e14-499f-bad8-265bd6ace4e7",
+              "name": "document-id",
+              "value": "={{ $('Create a document').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2320,
+        368
+      ],
+      "id": "e3a1578a-b683-4f01-9436-f86ec0390fe5",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fecha = $('get_dates').first().json.nombre_carpeta;\nconst emailSubject = `Informes Mensuales de Proyectos - ${fecha}`;\n\nconst styles = {\n  body: `font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f2f5f8; margin: 0; padding: 20px;`,\n  container: `max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 10px; border: 1px solid #e1e8ed;`,\n  logo: `display: block; margin: 0 auto 25px; width: 150px;`,\n  header: `color: #333; text-align: center; font-size: 24px; margin-bottom: 30px;`,\n  projectCell: `font-size: 16px; color: #3b4d61; text-align: left;`,\n  buttonCell: `text-align: right;`,\n  button: `background-color: #d82c7d; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; white-space: nowrap;`,\n  projectTable: `width: 100%; border-bottom: 1px solid #e1e8ed; padding: 18px 0;`\n};\n\nlet projectListHtml = '';\n\nfor (const item of items) {\n  const projectName = item.json['project-name'];\n  const documentId = item.json['document-id'];\n\n  if (!projectName || !documentId) {\n    continue;\n  }\n\n  const documentUrl = `https://docs.google.com/document/d/${documentId}`;\n\n  projectListHtml += `\n    <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"${styles.projectTable}\">\n      <tr>\n        <td style=\"${styles.projectCell}\">\n          ${projectName}\n        </td>\n        <td style=\"${styles.buttonCell}\">\n          <a href=\"${documentUrl}\" target=\"_blank\" style=\"${styles.button}\">Ver Informe</a>\n        </td>\n      </tr>\n    </table>\n  `;\n}\n\nconst emailBody = `\n<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>${emailSubject}</title>\n</head>\n<body style=\"${styles.body}\">\n  <div style=\"${styles.container}\">\n    <img src=\"https://www.epoint.es/web/image/49208-5958153e/epoint-logo-main.webp\" alt=\"Epoint Logo\" style=\"${styles.logo}\">\n    <h2 style=\"${styles.header}\">Informes de Actividad - ${fecha}</h2>\n    ${projectListHtml}\n  </div>\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    emailSubject: emailSubject,\n    emailBody: emailBody\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        -160
+      ],
+      "id": "4645b4a8-6a10-4f3f-8ece-c8bc007600b0",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9c8a833c-f532-4207-a44b-201b2b4deaec",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        96
+      ],
+      "id": "fc46da6b-1514-43c9-ad37-fa0cbb2a7c43",
+      "name": "If"
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-09-10T19:37:11.771+02:00",
+          "Readable date": "September 10th 2025, 7:37:11 pm",
+          "Readable time": "7:37:11 pm",
+          "Day of week": "Wednesday",
+          "Year": "2025",
+          "Month": "September",
+          "Day of month": "10",
+          "Hour": "19",
+          "Minute": "37",
+          "Second": "11",
+          "Timezone": "Europe/Madrid (UTC+02:00)"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "get_dates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_dates": {
+      "main": [
+        [
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get-tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get-projects": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create folder": {
+      "main": [
+        [
+          {
+            "node": "get-projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get-tasks": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ff4829f2-4edc-4920-aba3-e1e1b17cb4c2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db22c17ebbc08c128535ebce7505cbfdce3f20af3ddfb339ce948930bb1c850a"
+  },
+  "id": "MiAc1B5E0wSmYPgg",
+  "tags": []
+}
